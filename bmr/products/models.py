@@ -13,6 +13,10 @@ class Product(models.Model):
     HUMAN = 'HM'
     VET = 'VT'
 
+    # PHARMACOPIEA
+    USP = 'USP'
+    BP = 'BP'
+
     PRODUCT_TYPE = [
         (CAPLET, 'CAPLET'),
         (TABLET, 'TABLET'),
@@ -24,26 +28,66 @@ class Product(models.Model):
         (VET, 'VET'),
     ]
 
+    PHARMACOPIEA = [
+        (USP, 'USP'),
+        (BP, 'BP')
+        ]
+
+    # product drug
     product_name = models.CharField(max_lenght=100)
     generic_name = models.CharField(max_lenght=100)
-    unit_size = models.IntegerField(blank=True)
-    label_claim = models.IntegerField(blank=True)
-    packaging = models.ImageField(upload_to='products')
+    unit_size = models.PositiveIntegerField(help_text='in milligrams', blank=True)
+    label_claim = models.PositiveIntegerField(help_text='in milligrams', blank=True)
+    packaging = models.ImageField(blank=True, upload_to='products')
     product_type = models.CharField(max_length=20, choices=PRODUCT_TYPE, default=TABLET)
     product_for = model.CharField(max_length=20, choices=PRODUCT_FOR, default=HUMAN)
+    registration_number = models.CharField(max_length=50)
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
     
     def __str__(self):
         return self.product_name
 
 
 class RawMaterial(models.Model):
-    pass
+
+    # product raw materials
+    standard_quantity = models.FloatField(help_text='in kilograms or gram mil', null=True, blank=True)
+    potency = models.FloatFieldField(help_text='in percentage', null=True, blank=True)
+    percentage_formula = models.FloatField(help_text='in percentage', null=True, blank=True)
+    unit_formula_quantity = models.FloatField(help_text='in milligrams', null=True, blank=True)
+    batch_formula = models.FloatField(help_text='in kilograms or gram mil', null=True, blank=True)
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.product_name
 
 class Equipment(models.Model):
-    pass
+    name = models.CharField(max_length=100)
+    id_num = models.CharField(max_length=20)
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.name
 
 class Specification(models.Model):
-    pass
+    test = models.CharField(max_length=50)
+    pharmacopiea = models.CharField(max_length=5, choices=PHARMACOPIEA)
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.test
 
 class ManufacturingProcess(models.Model):
-    pass
+    step = models.IntegerField()
+    substep = models.CharField(max_length=2)
+    action = TextField(blank=True)
+    duration = models.IntegerField(help_text='in minutes or seconds')
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.action[:10]
