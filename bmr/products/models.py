@@ -1,4 +1,5 @@
 from django.db import models
+from batches.models import Test, RawMaterialBatch
 
 # Create your models here.
 
@@ -37,11 +38,12 @@ class Product(models.Model):
     product_name = models.CharField(max_lenght=100)
     generic_name = models.CharField(max_lenght=100)
     description = models.TextField(max_length=250)
-    unit_size = models.PositiveIntegerField(help_text='in milligrams', blank=True)
-    label_claim = models.PositiveIntegerField(help_text='in milligrams', blank=True)
-    packaging = models.ImageField(blank=True, upload_to='products')
+    unit_size = models.PositiveIntegerField(help_text='in milligrams', blank=True, null=True)
+    label_claim = models.PositiveIntegerField(help_text='in milligrams', blank=True, null=True)
+    packaging = models.ImageField(blank=True, null=True, upload_to='products')
     product_type = models.CharField(max_length=20, choices=PRODUCT_TYPE, default=TABLET)
     product_for = model.CharField(max_length=20, choices=PRODUCT_FOR, default=HUMAN)
+    equipments = models.ManyToManyField(Equipment, blank=True, null=True)
     registration_number = models.CharField(max_length=50)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
@@ -54,6 +56,7 @@ class RawMaterial(models.Model):
 
     # product raw materials
     product = models.ForeignKey(Product, on_delete=models.DELETE)
+    name = models.ForeignKey(RawMaterialBatch, on_delete=models.CASCADE)
     standard_quantity = models.FloatField(help_text='in kilograms or gram mil', null=True, blank=True)
     potency = models.FloatFieldField(help_text='in percentage', null=True, blank=True)
     percentage_formula = models.FloatField(help_text='in percentage', null=True, blank=True)
@@ -76,7 +79,7 @@ class Equipment(models.Model):
 
 class Specification(models.Model):
     product = models.ForeignKey(Product, on_delete=models.DELETE)
-    test = models.CharField(max_length=50)
+    test = models.ForeignKey(Test, on_delete=models.CASCADE)
     specification = models.FloatField(blank=True)
     deviation = models.FloatField(blank=True, null=True)
     pharmacopiea = models.CharField(max_length=5, choices=PHARMACOPIEA)
@@ -90,8 +93,8 @@ class ManufacturingProcess(models.Model):
     product = models.ForeignKey(Product, on_delete=models.DELETE)
     step = models.IntegerField()
     substep = models.CharField(max_length=2)
-    action = TextField(max_length=250, blank=True)
-    duration = models.DurationField(help_text='in minutes or seconds')
+    action = TextField(max_length=250)
+    duration = models.DurationField(help_text='in minutes or seconds', blank=True, null=True)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
