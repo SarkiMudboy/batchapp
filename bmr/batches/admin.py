@@ -10,7 +10,18 @@ from .models import (
     RawMaterialCheckRecord,
     RawMaterialCheckRecordAuth,
     RawMaterialPackagingBill,
-    RawMaterialBillAuth
+    RawMaterialBillAuth,
+    EquipmentCheck,
+    EquipmentClearance,
+    BatchManufacturingProcess,
+    BatchManufacturingProcessAuth,
+    PackagingMaterial,
+    BillOfPackaging,
+    BatchPackagingProcess,
+    BatchPackagingAuth,
+    ProductReconciliation,
+    ReleaseProfile,
+    Guide
 )
 
 # Register your models here.
@@ -26,3 +37,14 @@ admin.site.register(RawMaterialCheckRecord)
 admin.site.register(RawMaterialCheckRecordAuth)
 admin.site.register(RawMaterialPackagingBill)
 admin.site.register(RawMaterialBillAuth)
+admin.site.register(EquipmentCheck)
+admin.site.register(EquipmentClearance)
+admin.site.register(BatchManufacturingProcess)
+admin.site.register(BatchManufacturingProcessAuth)
+admin.site.register(PackagingMaterial)
+admin.site.register(BillOfPackaging)
+admin.site.register(BatchPackagingProcess)
+admin.site.register(BatchPackagingAuth)
+admin.site.register(ProductReconciliation)
+admin.site.register(ReleaseProfile)
+admin.site.register(Guide)

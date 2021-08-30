@@ -1,5 +1,6 @@
 from django.db import models
-from products.models import Product, Specification, Test
+from django.core.validators import validate_comma_separated_integer_list
+from products.models import Product, Specification, Test, Equipment, ManufacturingProcess
 from staff.models import Staff
 from rawmaterials.models import RawMaterial, RawMaterialBatch
 
@@ -41,7 +42,7 @@ class TestResult(models.Model):
     batch = models.ForeignKey(Batch, on_delete=models.CASCADE)
     test = models.ForeignKey(Test, on_delete=models.CASCADE)
     result = models.IntegerField(blank=True, null=True)
-    id_complies = models.NullBooleanField(blank=True, null=True)
+    id_complies = models.BooleanField(blank=True, null=True)
     result_type = models.CharField(max_length=20, choices=RESULT_TYPE)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
@@ -83,8 +84,7 @@ class ControlRecords(models.Model):
 
 class IndividualWieght(models.Model):
     batch = models.ForeignKey(Batch, on_delete=models.CASCADE)
-    position = models.AutoField(primary_key=True)
-    weight = models.IntegerField()
+    weight = models.CharField(validators=[validate_comma_separated_integer_list], max_length=200, blank=True, null=True)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
@@ -162,6 +162,179 @@ class RawMaterialBillAuth(models.Model):
 
     def __str__(self):
         return self.batch + ' raw material bill authentication'
+
+# Equipments
+
+class EquipmentCheck(models.Model):
+    batch = models.ForeignKey(Batch, on_delete=models.CASCADE)
+    equipment = models.ForeignKey(Equipment, on_delete=models.CASCADE)
+    remark = models.CharField(max_length=10)
+    last_product = models.ForeignKey(Product, related_name='%(class)s_last_product', blank=True, null=True, on_delete=models.CASCADE)
+    action_by = models.ForeignKey(Staff, related_name='%(class)s_action_by', blank=True, null=True, on_delete=models.CASCADE)
+    checked_by = models.ForeignKey(Staff, related_name='%(class)s_checked_by', blank=True, null=True, on_delete=models.CASCADE)
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.batch + self.equipment + 'check'
+
+class EquipmentClearance(models.Model):
+    batch = models.ForeignKey(Batch, on_delete=models.CASCADE)
+    last_product = models.ForeignKey(Product, related_name='%(class)s_last_product', blank=True, null=True, on_delete=models.CASCADE)
+    next_product = models.ForeignKey(Product, related_name='%(class)s_next_product', blank=True, null=True, on_delete=models.CASCADE)
+    check = models.TextField(max_length=500)
+    cleaned_by = models.ForeignKey(Staff, related_name='%(class)s_cleaned_by', blank=True, null=True, on_delete=models.CASCADE)
+    checked_by = models.ForeignKey(Staff, related_name='%(class)s_checked_by', blank=True, null=True, on_delete=models.CASCADE)
+    approved_by = models.ForeignKey(Staff, related_name='%(class)s_approved_by', blank=True, null=True, on_delete=models.CASCADE)
+    quality_assurance_manager = models.ForeignKey(Staff, related_name='%(class)s_qa_manager', blank=True, null=True, on_delete=models.CASCADE)
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.batch + self.equipment + 'clearance'
+
+# Manufacturing 
+
+class BatchManufacturingProcess(models.Model):
+    batch = models.ForeignKey(Batch, on_delete=models.CASCADE)
+    step = models.ForeignKey(ManufacturingProcess, on_delete=models.CASCADE)
+    action_from = models.DateTimeField(blank=True, null=True)
+    action_to = models.DateTimeField(blank=True, null=True)
+    action_by = models.ForeignKey(Staff, related_name='%(class)s_action_by', blank=True, null=True, on_delete=models.CASCADE)
+    checked_by = models.ForeignKey(Staff, related_name='%(class)s_checked_by', blank=True, null=True, on_delete=models.CASCADE)
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.batch + self.step + 'process'
+
+# Auth
+class BatchManufacturingProcessAuth(models.Model):
+    process = models.OneToOneField(BatchManufacturingProcess, on_delete=models.CASCADE)
+    manufacturing_commenced = models.DateField()
+    manufacturing_completed = models.DateField()
+    production_manager = models.ForeignKey(Staff, related_name='%(class)s_production_manager', blank=True, null=True, on_delete=models.CASCADE)
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.batch + self.process + 'authentication'
+
+# Packaging
+
+class PackagingMaterial(models.Model):
+    batch = models.ForeignKey(Batch, on_delete=models.CASCADE)
+    material = models.CharField(max_length=100)
+    dimension = models.CharField(max_length=100, blank=True, null=True)
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+    
+    def __str__(self):
+        return self.material
+
+
+class BillOfPackaging(models.Model):
+    batch = models.ForeignKey(Batch, on_delete=models.CASCADE)
+    material = models.ForeignKey(PackagingMaterial, on_delete=models.CASCADE)
+    quantity_required = models.IntegerField(null=True, blank=True)
+    actual_quantity = models.IntegerField(null=True, blank=True)
+    action_by = models.ForeignKey(Staff, related_name='%(class)s_action_by', blank=True, null=True, on_delete=models.CASCADE)
+    checked_by = models.ForeignKey(Staff, related_name='%(class)s_checked_by', blank=True, null=True, on_delete=models.CASCADE)
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.batch + self.material + "packaging bill"
+
+class BatchPackagingProcess(models.Model):
+    batch = models.ForeignKey(Batch, on_delete=models.CASCADE)
+    process = models.TextField(max_length=100)
+    action_by = models.ForeignKey(Staff, related_name='%(class)s_action_by', blank=True, null=True, on_delete=models.CASCADE)
+    checked_by = models.ForeignKey(Staff, related_name='%(class)s_checked_by', blank=True, null=True, on_delete=models.CASCADE)
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.batch + "packaging process"
+
+class BatchPackagingAuth(models.Model):
+    batch = models.ForeignKey(Batch, on_delete=models.CASCADE)
+    confirmed_by = models.ManyToManyField(Staff)
+    approved_by = models.ForeignKey(Staff, related_name='%(class)s_approved_by', blank=True, null=True, on_delete=models.CASCADE)
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.batch + "packaging process authentication"
+
+# product reconciliation
+
+class ProductReconciliation(models.Model):
+
+    # samples
+    purpose = models.TextField(max_length=100)
+    quantity = models.IntegerField(null=True, blank=True)
+    collected_by = models.ForeignKey(Staff, related_name='%(class)s_approved_by', blank=True, null=True, on_delete=models.CASCADE)
+    issued_by = models.ForeignKey(Staff, related_name='%(class)s_issued_by', blank=True, null=True, on_delete=models.CASCADE)
+    sales_quantity = models.CharField(max_length=100)
+    remarks = models.TextField(max_length=50)
+
+    # packaging materials
+    item = models.ForeignKey(PackagingMaterial, on_delete=models.CASCADE)
+    quantity_supplied = models.IntegerField(blank=True, null=True)
+    quantity_damaged = models.IntegerField(blank=True, null=True)
+    quantity_rejected = models.IntegerField(blank=True, null=True)
+    quantity_returned = models.IntegerField(blank=True, null=True)
+    quantity_used = models.IntegerField(blank=True, null=True)
+    percentage_breakage = models.FloatField(help_text='in percentage', blank=True, null=True)
+    percentage_damages = models.FloatField(help_text='in percentage', blank=True, null=True)
+    deviation = models.FloatField(help_text='+/- (%)', blank=True, null=True)
+    comments = models.TextField(null=True, blank=True)
+
+    # yeild
+    pack_sizes = models.CharField(validators=[validate_comma_separated_integer_list], max_length=200, blank=True, null=True)
+
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.batch + "product reconciliation"
+
+# release profile
+
+class ReleaseProfile(models.Model):
+    parameter = models.CharField(max_length=100)
+    test = models.ForeignKey(Test, blank=True, null=True, on_delete=models.CASCADE)
+    analytical_result = models.BooleanField(default=False)
+    checked_by = models.ForeignKey(Staff, related_name='%(class)s_checked_by', blank=True, null=True, on_delete=models.CASCADE)
+    remark = models.TextField(max_length=50)
+    quality_assurance_manager = models.ForeignKey(Staff, related_name='%(class)s_qa_manager', blank=True, null=True, on_delete=models.CASCADE)
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.batch + "release profile"
+
+class Guide(models.Model):
+    standard_instructions = models.TextField(max_length=8000)
+    issuance = models.TextField(max_length=8000)
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+    
+    def __str__(self):
+        return self.batch + "guide"
+
+
+
+
+
+
+    
+
+
+
+
+
 
 
 
