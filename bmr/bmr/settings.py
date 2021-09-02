@@ -44,6 +44,10 @@ INSTALLED_APPS = [
     'profiles',
     'staff',
     'rawmaterials',
+
+    # external apps
+    'crispy_forms',
+    
 ]
 
 MIDDLEWARE = [
@@ -61,7 +65,7 @@ ROOT_URLCONF = 'bmr.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [ BASE_DIR / 'templates' ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
