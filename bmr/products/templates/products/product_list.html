@@ -8,8 +8,8 @@ Products
 <div><h2>Products</h2></div>
 
 {% for product in products %}
-<p><a href="{{ products.get_absolute_url }}">{{ products }}</a>x</p>    
+<p><a href="{{ product.get_absolute_url }}">{{ product }}</a></p>    
 {% endfor %}
-  
+<button type="button" class="btn btn-outline-success" onclick=location.href='{% url "products:create-product" %}'>Add product</button>
 {% endblock content %}
 
