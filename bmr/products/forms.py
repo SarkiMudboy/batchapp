@@ -1,5 +1,5 @@
 from django.forms import ModelForm
-from .models import Product
+from .models import Product, Equipment, RawMaterial
 
 
 class ProductCreateForm(ModelForm):
@@ -22,3 +22,24 @@ class ProductUpdateForm(ModelForm):
                     'equipments',
                     'registration_number'
                 ]
+
+class EquipmentCreateForm(ModelForm):
+    class Meta:
+        model = Equipment
+        fields = '__all__'
+
+
+class EquipmentUpdateForm(ModelForm):
+    class Meta:
+        model = Equipment
+        fields = ['name', 'id_num']
+
+class RawmaterialCreateForm(ModelForm):
+    class Meta:
+        model = RawMaterial
+        fields = '__all__'
+
+class RawmaterialUpdateForm(ModelForm):
+    class Meta:
+        model = RawMaterial
+        fields = '__all__'

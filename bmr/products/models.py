@@ -70,9 +70,14 @@ class RawMaterial(models.Model):
     updated = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return self.product_name
+        return self.name.raw_material.name
+
+    def get_absolute_url(self):
+        return reverse('products:rawmaterial-detail', kwargs={'pk' : self.pk})
 
 class Equipment(models.Model):
+
+    # product equipments
     name = models.CharField(max_length=100)
     id_num = models.CharField(max_length=20)
     created = models.DateTimeField(auto_now_add=True)
@@ -81,13 +86,21 @@ class Equipment(models.Model):
     def __str__(self):
         return self.name
 
+    def get_absolute_url(self):
+        return reverse('products:equipment-detail', kwargs={'pk' : self.pk})
+
+
 class Test(models.Model):
+
+    # tests
     name = models.CharField(max_length=50)
 
     def __str__(self):
         return self.name
 
 class Specification(models.Model):
+
+    # products specs
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     test = models.ForeignKey(Test, on_delete=models.CASCADE)
     specification = models.FloatField(blank=True)
@@ -100,6 +113,8 @@ class Specification(models.Model):
         return self.test
 
 class ManufacturingProcess(models.Model):
+
+    # manufacturing process for a product
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     step = models.IntegerField()
     substep = models.CharField(max_length=2)
