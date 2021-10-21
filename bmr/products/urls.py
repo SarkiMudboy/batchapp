@@ -17,6 +17,11 @@ from .views import ( product_list,
                     RawmaterialDetailView,
                     RawmaterialUpdateView,
                     RawmaterialDeleteView,
+                    ProductSpecificationDetailView,
+                    ProductSpecificationDeleteView,
+                    ProductSpecificationListView,
+                    ProductSpecificationUpdateView,
+                    ProductSpecificationCreateView
                      )
 
 app_name = 'products'
@@ -42,5 +47,12 @@ urlpatterns = [
     path('rawmaterials/create', create_raw_material, name='create-rawmaterial'),
     path('rawmaterials/<int:pk>/', RawmaterialDetailView.as_view(), name='rawmaterial-detail'),
     path('rawmaterials/<int:pk>/update', RawmaterialUpdateView.as_view(), name='rawmaterial-update'),
-    path('rawmaterials/<int:pk>/delete', RawmaterialDeleteView.as_view(), name='rawmaterial-delete')
+    path('rawmaterials/<int:pk>/delete', RawmaterialDeleteView.as_view(), name='rawmaterial-delete'),
+
+    # specifications
+    path('list/<int:pk>/specs', ProductSpecificationListView.as_view(), name='specs'),
+    path('list/<int:pk>/specs/create', ProductSpecificationCreateView.as_view(), name='create-spec'),
+    path('list/<int:pk>/specs/<int:pk2>/', ProductSpecificationDetailView.as_view(), name='spec-detail'),
+    path('list/<int:pk>/specs/<int:pk2>/update', ProductSpecificationUpdateView.as_view(), name='spec-update'),
+    path('list/<int:pk>/specs/<int:pk2>/delete', ProductSpecificationDeleteView.as_view(), name='spec-delete'),
 ]

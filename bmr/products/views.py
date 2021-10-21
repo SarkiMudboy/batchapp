@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect, reverse
-from .models import Product, Equipment, RawMaterial
+from .models import Product, Equipment, RawMaterial, Specification
 from django.views.generic import ListView, DetailView, UpdateView, DeleteView, CreateView
 from django.shortcuts import get_object_or_404, Http404
 from django.http import JsonResponse, HttpResponseRedirect
@@ -7,7 +7,8 @@ from django.core import serializers
 from django.urls import reverse_lazy
 from .forms import (
     ProductUpdateForm, ProductCreateForm, EquipmentCreateForm, 
-    EquipmentUpdateForm, RawmaterialCreateForm, RawmaterialUpdateForm
+    EquipmentUpdateForm, RawmaterialCreateForm, RawmaterialUpdateForm,
+    SpecificationUpdateForm, SpecificationCreateForm
 )
 
 # Create your views here.
@@ -174,33 +175,64 @@ class RawmaterialDeleteView(DeleteView):
 # specs
 
 class ProductSpecificationListView(ListView):
-    template_name = 'products/product_specification_list.html'
+    template_name = 'specifications/product_specification_list.html'
     model = Specification
     context_object_name = 'specs'
 
+    def get_queryset(self, *args, **kwargs):
+        request = self.request
+        pk = self.kwargs.get('pk')
+        product = Product.objects.get(pk=pk)
+        queryset = Specification.objects.filter(product=product)
+        if queryset is None:
+            raise Http404('Specification could not be found')
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        pk = self.kwargs.get('pk')
+        context = super().get_context_data(**kwargs)
+        context['product'] = Product.objects.get(pk=pk)
+        return context
+
 class ProductSpecificationDetailView(DetailView):
-    template_name = 'products/product_specification_detail.html'
+    template_name = 'specifications/product_specification_detail.html'
     context_object_name = 'specs'
 
     def get_object(self, *args, **kwargs):
         request = self.request
-        pk = self.kwargs.get('pk')
+        pk = self.kwargs.get('pk2')
         instance = Specification.objects.get(pk=pk)
         if instance is None:
             raise Http404('Specification could not be found')
         return instance
 
 class ProductSpecificationUpdateView(UpdateView):
-    template_name = 'products/product_specification_update.html'
+    template_name = 'specifications/product_specification_update.html'
     model = Specification
     form_class = SpecificationUpdateForm
+
+    def get(self, request, *args, **kwargs):
+        # pk1 = kwargs.get('pk', None)
+        pk = kwargs.get('pk2', None) 
+        return super(ProductSpecificationUpdateView, self).get(request, *args, **kwargs)
 
 class ProductSpecificationDeleteView(DeleteView):
     model = Specification
     success_url = reverse_lazy('products:specs')
 
+    def get(self, *args, **kwargs):
+        # pk1 = kwargs.get('pk1', None)
+        pk = kwargs.get('pk2', None)
+        return super(ProductSpecificationDeleteView, self).get(*args, **kwargs)
+
 class ProductSpecificationCreateView(CreateView):
-    template_name = 'products/product_specification_create_form.html'
+    template_name = 'specifications/product_specification_create_form.html'
     model = Specification
     form_class = SpecificationCreateForm
     success_url = reverse_lazy('products:specs')
+
+    def get_context_data(self, **kwargs):
+        pk = self.kwargs.get('pk')
+        context = super().get_context_data(**kwargs)
+        context['product'] = Product.objects.get(pk=pk)
+        return context

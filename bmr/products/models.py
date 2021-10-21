@@ -105,12 +105,17 @@ class Specification(models.Model):
     test = models.ForeignKey(Test, on_delete=models.CASCADE)
     specification = models.FloatField(blank=True)
     deviation = models.FloatField(blank=True, null=True)
+    unit = models.CharField(max_length=50, null=True, blank=True)
+    description = models.TextField(max_length=500, null=True, blank=True)
     pharmacopiea = models.CharField(max_length=5, choices=Product.PHARMACOPIEA)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return self.test
+        return self.test.name
+
+    def get_absolute_url(self):
+        return reverse('products:specs', kwargs={'pk' : self.pk})
 
 class ManufacturingProcess(models.Model):
 
