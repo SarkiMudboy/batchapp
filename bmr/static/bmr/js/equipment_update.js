@@ -1,5 +1,5 @@
 {
-    $('#eq-form').submit(function(e) {
+    $('#equpdate-form').submit(function(e) {
         // preventing from page reload and default actions
         e.preventDefault();
         // serialize the data for sending the form data.

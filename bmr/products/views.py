@@ -1,5 +1,8 @@
 from django.shortcuts import render, redirect, reverse
-from .models import Product, Equipment, RawMaterial, Specification
+from django.contrib.messages.views import SuccessMessageMixin
+from django.contrib import messages
+from django.contrib.messages import get_messages
+from .models import Product, Equipment, RawMaterial, Specification, Test, ManufacturingProcess
 from django.views.generic import ListView, DetailView, UpdateView, DeleteView, CreateView
 from django.shortcuts import get_object_or_404, Http404
 from django.http import JsonResponse, HttpResponseRedirect
@@ -8,8 +11,9 @@ from django.urls import reverse_lazy
 from .forms import (
     ProductUpdateForm, ProductCreateForm, EquipmentCreateForm, 
     EquipmentUpdateForm, RawmaterialCreateForm, RawmaterialUpdateForm,
-    SpecificationUpdateForm, SpecificationCreateForm
+    SpecificationUpdateForm, SpecificationCreateForm, TestUpdateForm, TestCreateForm,
 )
+import json
 
 # Create your views here.
 
@@ -39,31 +43,43 @@ class ProductDetailView(DetailView):
             raise Http404('Product could not be found')
         return instance
 
-class ProductUpdateView(UpdateView):
+class ProductUpdateView(SuccessMessageMixin, UpdateView):
     template_name = 'products/product_update.html'
     model = Product
     form_class = ProductUpdateForm
+    success_message = '%(product_name)s was updated successfully'
 
 class ProductDeleteView(DeleteView):
     model = Product
     success_url = reverse_lazy('products:list')
 
-class ProductCreateView(CreateView):
+class ProductCreateView(SuccessMessageMixin, CreateView):
     template_name = 'products/product_create_form.html'
     model = Product
     form_class = ProductCreateForm
     success_url = reverse_lazy('products:list')
+    success_message = '%(product_name)s was created successfully'
 
 # equipments
 
 def equipment_list(request):
     equipments = Equipment.objects.all()
     form = EquipmentCreateForm
+    # eq_instance = Equipment.objects.get(pk=pk)
+    # update_form = EquimentUpdateForm(request.POST, instance=eq_instance)
     context = {
         'equipments': equipments,
-        'form': form
+        'form': form,
+        'update_form': update_form
     }
     return render(request, 'equipments/equipment_list.html', context=context)
+
+def equipment_modal(request, id):
+    instance = get_object_or_404(Equipment, id=pk)
+    context={
+        'instance': instance
+    }
+    return render(request, 'update_modal.html', context)
 
 def postEquipment(request):
 
@@ -73,10 +89,26 @@ def postEquipment(request):
         form = EquipmentCreateForm(request.POST)
         if form.is_valid():
             instance = form.save()
+
+            # add success message
+            equipment = form.cleaned_data['name']
+            messages.add_message(request, messages.SUCCESS, f'{equipment} was created successfully')
+            
+            django_messages = []
+            for message in messages.get_messages(request):
+                django_messages.append({
+                    "level": message.level,
+                    "message": message.message,
+                    "extra_tags": message.tags,
+            })
+
+            data = {}
+            data['messages'] = django_messages
+
             # serialize new equipment object in json.
-            ser_instance = serializers.serialize('json', [instance, ])
+            ser_instance = serializers.serialize('json', [instance,])
             # send to the client side
-            return JsonResponse({'instance': ser_instance}, status=200)
+            return JsonResponse({'instance': ser_instance, 'message': data}, status=200)
         else:
             # some form errors occured.
             return JsonResponse({"error": form.errors}, status=400)
@@ -90,29 +122,47 @@ class EquipmentListView(ListView):
     form_class = EquipmentCreateForm
     context_object_name = 'equipments'
 
-class EquipmentCreateView(CreateView):
+class EquipmentCreateView(SuccessMessageMixin, CreateView):
     template_name = 'equipments/equipment_create_form.html'
     model = Equipment
     form_class = EquipmentCreateForm
     success_url = reverse_lazy('products:equipments')
+    success_message = '%(name)s was created successfully'
 
+def equipment_update(request):
 
-class EquipmentDetailView(DetailView):
-    template_name = 'equipments/equipment_detail.html'
-    context_object_name = 'equipment'
+    if request_is_ajax and request.method == 'POST':
+        if form.is_valid:
+            form = EquipmentUpdateForm(request.POST)
+            instance = form.save()
 
-    def get_object(self, *args, **kwargs):
-        request = self.request
-        pk = self.kwargs.get('pk')
-        instance = Equipment.objects.get(pk=pk)
-        if instance is None:
-            raise Http404('Equipment could not be found')
-        return instance
+            equipment = form.cleaned_data['name']
+            messages.add_message(request, SUCCESS, f'{equipment} have been updated')
 
-class EquipmentUpdateView(UpdateView):
+            django_messages = []
+            for message in messages.get_messages(request):
+                django_messages.append({
+                    'level': message.level,
+                    'messages': message.message,
+                    'extra_tags': message.tags
+                })
+
+            data = {}
+            data['messages'] = django_messages
+
+            ser_instance = serializers.serialize('json', [instance,])
+            return JsonResponse({'instance': ser_instance, 'message' : data}, status=200)
+        else:
+            return JsonResponse({'error': form.errors}, status=400)
+
+    else:
+        return JsonResponse({'error': ''}, status=400)
+
+class EquipmentUpdateView(SuccessMessageMixin, UpdateView):
     template_name = 'equipments/equipment_update.html'
     model = Equipment
     form_class = EquipmentUpdateForm
+    success_message = '%(name)s was updated successfully'
 
 class EquipmentDeleteView(DeleteView):
     template_name = 'equipments/equipment_confirm_delete.html'
@@ -139,6 +189,9 @@ def create_raw_material(request):
         if form.is_valid():
             # proccess and save the cleaned data to the database
             instance = form.save()
+            # add success message
+            raw_material = form.cleaned_data['name']
+            messages.add_message(request, messages.SUCCESS, f'{raw_material} was created successfully')
             # redirect to a new URL:
             return redirect(reverse('products:raw-materials'))
     else:
@@ -161,10 +214,11 @@ class RawmaterialDetailView(DetailView):
             raise Http404('Raw material could not be found')
         return instance
 
-class RawmaterialUpdateView(UpdateView):
+class RawmaterialUpdateView(SuccessMessageMixin, UpdateView):
     template_name = 'raw_materials/rawmaterial_update.html'
     model = RawMaterial
     form_class = RawmaterialUpdateForm
+    success_message = '%(name)s was updated successfully'
 
 class RawmaterialDeleteView(DeleteView):
     template_name = 'raw_materials/rawmaterial_confirm_delete.html'
@@ -206,33 +260,92 @@ class ProductSpecificationDetailView(DetailView):
             raise Http404('Specification could not be found')
         return instance
 
-class ProductSpecificationUpdateView(UpdateView):
+class ProductSpecificationUpdateView(SuccessMessageMixin, UpdateView):
     template_name = 'specifications/product_specification_update.html'
     model = Specification
     form_class = SpecificationUpdateForm
+    success_message = '%(test)s was updated successfully'
 
-    def get(self, request, *args, **kwargs):
-        # pk1 = kwargs.get('pk', None)
-        pk = kwargs.get('pk2', None) 
-        return super(ProductSpecificationUpdateView, self).get(request, *args, **kwargs)
+    def get_object(self, *args, **kwargs):
+        request = self.request
+        pk = self.kwargs.get('pk2')
+        instance = Specification.objects.get(pk=pk)
+        if instance is None:
+            raise Http404('Specification could not be found')
+        return instance
+
+    def get_success_url(self):
+        product_id=self.kwargs['pk']
+        return reverse_lazy('products:specs', kwargs={'pk': product_id})
+
 
 class ProductSpecificationDeleteView(DeleteView):
     model = Specification
-    success_url = reverse_lazy('products:specs')
+    template_name = 'specifications/product_specification_confirm_delete.html'
 
-    def get(self, *args, **kwargs):
-        # pk1 = kwargs.get('pk1', None)
-        pk = kwargs.get('pk2', None)
-        return super(ProductSpecificationDeleteView, self).get(*args, **kwargs)
+    def get_object(self, *args, **kwargs):
+        request = self.request
+        pk = self.kwargs.get('pk2')
+        instance = Specification.objects.get(pk=pk)
+        if instance is None:
+            raise Http404('Specification could not be found')
+        return instance
 
-class ProductSpecificationCreateView(CreateView):
+    def get_success_url(self):
+        product_id=self.kwargs['pk']
+        return reverse_lazy('products:specs', kwargs={'pk': product_id})
+
+
+class ProductSpecificationCreateView(SuccessMessageMixin, CreateView):
     template_name = 'specifications/product_specification_create_form.html'
     model = Specification
     form_class = SpecificationCreateForm
-    success_url = reverse_lazy('products:specs')
+    success_message = '%(test)s was created successfully'
+
+    def get_success_url(self):
+        product_id=self.kwargs['pk']
+        return reverse_lazy('products:specs', kwargs={'pk': product_id})
 
     def get_context_data(self, **kwargs):
         pk = self.kwargs.get('pk')
         context = super().get_context_data(**kwargs)
         context['product'] = Product.objects.get(pk=pk)
         return context
+
+# Tests
+
+class TestView(ListView):
+    template_name = 'product_tests/test_list.html'
+    model = Test
+    context_object_name = 'tests'
+
+class TestCreateView(SuccessMessageMixin, CreateView):
+    template_name = 'products_tests/test_create_form.html'
+    model = Test
+    form_class = TestCreateForm
+    success_url = reverse_lazy('products:tests')
+    success_message = '%(name)s was created successfully'
+
+class TestDetailView(DetailView):
+    template_name = 'products_tests/test_detail.html'
+    context_object_name = 'test'
+
+    def get_object(self, *args, **kwargs):
+        request = self.request
+        pk = self.kwargs.get('pk')
+        instance = Test.objects.get(pk=pk)
+        if instance is None:
+            raise Http404('Test could not be found')
+        return instance
+
+class TestUpdateView(SuccessMessageMixin, UpdateView):
+    template_name = 'products_tests/test_update.html'
+    model = Test
+    form_class = TestUpdateForm
+    success_message = '%(name)s was updated successfully'
+
+class TestDeleteView(DeleteView):
+    template_name = 'products_tests/test_confirm_delete.html'
+    model = Test
+    success_url = reverse_lazy('products:tests')
+

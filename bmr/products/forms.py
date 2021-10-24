@@ -1,5 +1,5 @@
 from django.forms import ModelForm
-from .models import Product, Equipment, RawMaterial, Specification
+from .models import Product, Equipment, RawMaterial, Specification, Test
 
 
 class ProductCreateForm(ModelForm):
@@ -52,4 +52,14 @@ class SpecificationCreateForm(ModelForm):
 class SpecificationUpdateForm(ModelForm):
     class Meta:
         model = Specification
+        fields = '__all__'
+
+class TestCreateForm(ModelForm):
+    class Meta:
+        model = Test
+        fields = '__all__'
+
+class TestUpdateForm(ModelForm):
+    class Meta:
+        model = Test
         fields = '__all__'

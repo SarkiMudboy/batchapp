@@ -5,6 +5,15 @@
 {% endblock title %}
 
 {% block content %}
+
+{% if messages %}
+     {% for message in messages %}
+         <div class="text-center alert alert-{{ message.tags }}">
+             {{ message|safe }}
+         </div>
+     {% endfor %}
+{% endif %}
+
 <div class="mx-auto col-md-6">
   <h1>Raw materials</h1>
   <br>
@@ -24,11 +33,3 @@
   </div>
 </div>
 {% endblock content %}
-
-
-
-<!-- {% for raw_material in raw_materials %}
-<p>{{ raw_material }}
-  <button type="button" class="btn btn-outline-secondary" onclick=location.href='{{ raw_material.get_absolute_url }}'>Details</button>
-</p>
-{% endfor %} -->
