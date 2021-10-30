@@ -87,7 +87,7 @@ class Equipment(models.Model):
         return self.name
 
     def get_absolute_url(self):
-        return reverse('products:equipment-detail', kwargs={'pk' : self.pk})
+        return reverse('products:equipments')
 
 
 class Test(models.Model):

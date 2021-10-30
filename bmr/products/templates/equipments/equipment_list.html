@@ -7,7 +7,7 @@ Equipments
 
 {% block content %}
 
-<div class="mx-auto col-md-6">
+<div style="margin-left: 30px;" class="mx-auto col-md-12">
     <h2 class="mt-3">Equipments</h2>
     <div class="row">
         <div class="col-xs-12 col-sm-10 col-md-8 col-lg-6 mt-3">
@@ -15,8 +15,10 @@ Equipments
                 {% for equipment in equipments %}
                     <li class="list-group-item">
                         <p>{{ equipment }} - ({{ equipment.id_num }})
-                            <button style="float: right;" class="btn btn-outline-info" data-bs-target="#exampleModalToggle2" data-bs-toggle="modal" 
-                            id="open-modal" data-url='{% url "products:equipment-update" equipment.pk %}'>Update</button>
+                            <button style="float: right; margin-left: 10px" class="delete-equipment btn btn-outline-danger" 
+                            data-form-url='{% url "products:equipment-delete" equipment.pk %}'>Delete</button>
+                            <button style="float: right;" class="update-equipment btn btn-outline-info" 
+                            data-form-url='{% url "products:equipment-update" equipment.pk %}'>Update</button>
                         </p>
                     </li>  
                 {% endfor %}
@@ -32,24 +34,12 @@ Equipments
     </button>
 </div>
 
-    {% include 'modal.html' with form=form %}
 
-    <!-- Here we create this empty div for inserting modal -->
-    <div id="modal-div"></div>
+    {% include 'modal.html' with form=create_form %}
+    {% include "update_modal.html" %}
 
-    <script>
-        var modalDiv = $("#modal-div");
-        $("#open-modal").on("click", function() {
-        $.ajax({
-            url: $(this).attr("data-url"),
-            success: function(data) {
-            modalDiv.html(data);
-            $("#myEdit").modal();
-            }
-        });
-        });
-    </script>
     <script src="{% static 'bmr/js/equipment.js' %}"></script>
+    <script src="{% static 'bmr/js/fetch_equipment.js' %}"></script>
 
 {% endblock content %}
 

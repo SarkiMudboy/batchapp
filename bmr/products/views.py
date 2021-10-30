@@ -8,6 +8,7 @@ from django.shortcuts import get_object_or_404, Http404
 from django.http import JsonResponse, HttpResponseRedirect
 from django.core import serializers
 from django.urls import reverse_lazy
+from bootstrap_modal_forms.generic import BSModalUpdateView, BSModalDeleteView
 from .forms import (
     ProductUpdateForm, ProductCreateForm, EquipmentCreateForm, 
     EquipmentUpdateForm, RawmaterialCreateForm, RawmaterialUpdateForm,
@@ -65,21 +66,11 @@ class ProductCreateView(SuccessMessageMixin, CreateView):
 def equipment_list(request):
     equipments = Equipment.objects.all()
     form = EquipmentCreateForm
-    # eq_instance = Equipment.objects.get(pk=pk)
-    # update_form = EquimentUpdateForm(request.POST, instance=eq_instance)
     context = {
         'equipments': equipments,
-        'form': form,
-        'update_form': update_form
+        'create_form': form,
     }
     return render(request, 'equipments/equipment_list.html', context=context)
-
-def equipment_modal(request, id):
-    instance = get_object_or_404(Equipment, id=pk)
-    context={
-        'instance': instance
-    }
-    return render(request, 'update_modal.html', context)
 
 def postEquipment(request):
 
@@ -129,45 +120,18 @@ class EquipmentCreateView(SuccessMessageMixin, CreateView):
     success_url = reverse_lazy('products:equipments')
     success_message = '%(name)s was created successfully'
 
-def equipment_update(request):
-
-    if request_is_ajax and request.method == 'POST':
-        if form.is_valid:
-            form = EquipmentUpdateForm(request.POST)
-            instance = form.save()
-
-            equipment = form.cleaned_data['name']
-            messages.add_message(request, SUCCESS, f'{equipment} have been updated')
-
-            django_messages = []
-            for message in messages.get_messages(request):
-                django_messages.append({
-                    'level': message.level,
-                    'messages': message.message,
-                    'extra_tags': message.tags
-                })
-
-            data = {}
-            data['messages'] = django_messages
-
-            ser_instance = serializers.serialize('json', [instance,])
-            return JsonResponse({'instance': ser_instance, 'message' : data}, status=200)
-        else:
-            return JsonResponse({'error': form.errors}, status=400)
-
-    else:
-        return JsonResponse({'error': ''}, status=400)
-
-class EquipmentUpdateView(SuccessMessageMixin, UpdateView):
-    template_name = 'equipments/equipment_update.html'
+# Update
+class EquipmentUpdateView(BSModalUpdateView):
     model = Equipment
+    template_name = 'equipments/update_form.html'
     form_class = EquipmentUpdateForm
     success_message = '%(name)s was updated successfully'
 
-class EquipmentDeleteView(DeleteView):
+class EquipmentDeleteView(BSModalDeleteView):
     template_name = 'equipments/equipment_confirm_delete.html'
     model = Equipment
     success_url = reverse_lazy('products:equipments')
+    success_message = '%(name)s was deleted successfully'
 
 # raw materials
 

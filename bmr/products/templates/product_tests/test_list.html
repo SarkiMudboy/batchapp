@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block title %}
+  Tests
+{% endblock title %}
+
+{% block content %}
+<h2 class="mt-3">Tests</h2>
+<div class="row">
+    <div class="col-xs-12 col-sm-10 col-md-8 col-lg-6 mt-3">
+        <ul class="list-group list-group-flush" id="equipments">
+            {% for test in tests %}
+                <li class="list-group-item">
+                    <p>{{ test }}
+                        <button class="btn btn-outline-danger" data-form-url="{% url 'products:test-delete' test.pk %}">Delete</button>
+                        <button class="btn btn-outline-success" data-form-url="{% url 'products:test-update' test.pk %}">Rename</button>
+                    </p>
+                </li>  
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+
+{% include "test_rename.html" %}
+
+{% endblock content %}

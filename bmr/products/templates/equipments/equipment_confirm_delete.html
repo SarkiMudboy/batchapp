@@ -1,12 +1,7 @@
-{% extends "base.html" %}
-
-{% block title %}
-Confirm delete
-{% endblock title %}
-
-{% block content %}
-<form method="post">{% csrf_token %}
-    <p>Are you sure you want to delete "{{ object }}"?</p>
-    <input type="submit" value="Confirm">
-</form>
-{% endblock content %}
+<div class="m-4 pb-5">
+    <form method="post">{% csrf_token %}
+        <h2>Are you sure you want to delete "{{ object }}"?</h2>
+        <button type="submit" class="mt-2 btn btn-outline-danger">Confirm</button>
+        <!-- <input type="submit" value="Confirm"> -->
+    </form>
+</div>
