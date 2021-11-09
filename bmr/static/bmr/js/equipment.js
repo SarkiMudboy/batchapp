@@ -34,7 +34,7 @@
             },
             error: function (response) {
                 // alert the error if any error occured
-                alert(response["responseJSON"]["error"]);
+                alert(response["error"]);
             }
         })
     })

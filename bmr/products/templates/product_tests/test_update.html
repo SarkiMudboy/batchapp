@@ -1,0 +1,11 @@
+<form method="post" action="{% url 'products:test-update' test.pk %}" class="js-test-update-form" id="test-update-form">
+  {% csrf_token %}
+  <div class="modal-header">
+    <div class="mt-2 container-fluid" id="test-messages"></div>
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    {% include 'product_tests/test_update_form.html' %}
+  </div>
+</form>

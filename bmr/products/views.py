@@ -8,11 +8,12 @@ from django.shortcuts import get_object_or_404, Http404
 from django.http import JsonResponse, HttpResponseRedirect
 from django.core import serializers
 from django.urls import reverse_lazy
-from bootstrap_modal_forms.generic import BSModalUpdateView, BSModalDeleteView
+from django.template.loader import render_to_string
 from .forms import (
     ProductUpdateForm, ProductCreateForm, EquipmentCreateForm, 
     EquipmentUpdateForm, RawmaterialCreateForm, RawmaterialUpdateForm,
     SpecificationUpdateForm, SpecificationCreateForm, TestUpdateForm, TestCreateForm,
+    ProcessCreateForm, ProcessUpdateForm,
 )
 import json
 
@@ -121,17 +122,62 @@ class EquipmentCreateView(SuccessMessageMixin, CreateView):
     success_message = '%(name)s was created successfully'
 
 # Update
-class EquipmentUpdateView(BSModalUpdateView):
-    model = Equipment
-    template_name = 'equipments/update_form.html'
-    form_class = EquipmentUpdateForm
-    success_message = '%(name)s was updated successfully'
+def equipment_update(request, pk):
+    equipment = Equipment.objects.get(pk=pk)
+    data = {}
+    if request.is_ajax and request.method == "POST":
+        form = EquipmentUpdateForm(request.POST, instance=equipment)
+        if form.is_valid():
+            form.save()
+            data['form_is_valid'] = True
+            equipments = Equipment.objects.all()
+            data['html_equipments_list'] = render_to_string('equipments/equipment_list.html', {'equipments': equipments}, request=request)
+            messages.add_message(request, messages.SUCCESS, f'{equipment} was updated successfully')
+            
+            django_messages = []
+            for message in messages.get_messages(request):
+                django_messages.append({
+                    "level": message.level,
+                    "message": message.message,
+                    "extra_tags": message.tags,
+            })
+            data['messages'] = django_messages
+        else:
+            data['form_is_valid'] = False
+    else:
+        form = EquipmentUpdateForm(instance=equipment)
 
-class EquipmentDeleteView(BSModalDeleteView):
-    template_name = 'equipments/equipment_confirm_delete.html'
-    model = Equipment
-    success_url = reverse_lazy('products:equipments')
-    success_message = '%(name)s was deleted successfully'
+    context = {'form': form, 'equipment': equipment}
+
+    data['html_form'] = render_to_string('equipments/equipment_update.html', context, request=request)
+
+    return JsonResponse(data)
+    
+
+def equipment_delete(request, pk):
+    equipment = get_object_or_404(Equipment, pk=pk)
+    data = dict()
+    data['delete'] = True
+    if request.method == 'POST':
+        equipment.delete()
+        data['form_is_valid'] = True
+        equipments = Equipment.objects.all()
+        messages.add_message(request, messages.ERROR, f'{equipment} has been deleted')
+            
+        django_messages = []
+        for message in messages.get_messages(request):
+            django_messages.append({
+                "level": message.level,
+                "message": message.message,
+                "extra_tags": message.tags,
+            })
+            data['messages'] = django_messages
+        data['html_equipments_list'] = render_to_string('equipments/equipment_list.html', {'equipments': equipments}, request=request)
+    else:
+        context = {'equipment': equipment}
+        data['html_delete'] = render_to_string('equipments/equipment_confirm_delete.html', context, request=request)
+
+    return JsonResponse(data)
 
 # raw materials
 
@@ -256,7 +302,7 @@ class ProductSpecificationDeleteView(DeleteView):
         return instance
 
     def get_success_url(self):
-        product_id=self.kwargs['pk']
+        product_id = self.kwargs['pk']
         return reverse_lazy('products:specs', kwargs={'pk': product_id})
 
 
@@ -278,38 +324,153 @@ class ProductSpecificationCreateView(SuccessMessageMixin, CreateView):
 
 # Tests
 
-class TestView(ListView):
-    template_name = 'product_tests/test_list.html'
-    model = Test
-    context_object_name = 'tests'
+# convert this view to a function and merge with create view 
 
-class TestCreateView(SuccessMessageMixin, CreateView):
-    template_name = 'products_tests/test_create_form.html'
-    model = Test
-    form_class = TestCreateForm
-    success_url = reverse_lazy('products:tests')
-    success_message = '%(name)s was created successfully'
+def tests(request):
+    data = dict()
+    if request.is_ajax and request.method == 'POST':
+        form = TestCreateForm(request.POST)
+        if form.is_valid():
+            form.save()
+            data['created'] = True
+            new_tests = Test.objects.all()
+            data['html_test_list'] = render_to_string('product_tests/test_list.html', {'tests': new_tests}, request=request)
+            new_test = form.cleaned_data['name']
+            messages.add_message(request, messages.SUCCESS, f'{new_test} added!')
+            
+            django_messages = []
+            for message in messages.get_messages(request):
+                django_messages.append({
+                    "level": message.level,
+                    "message": message.message,
+                    "extra_tags": message.tags,
+            })
+            data['messages'] = django_messages
+            return JsonResponse(data)
+    else:
+        tests = Test.objects.all()
+        form = TestCreateForm    
+        context = {
+            'tests': tests,
+            'create_form': form,
+        }
+        return render(request, 'product_tests/test_list.html', context=context)
 
-class TestDetailView(DetailView):
-    template_name = 'products_tests/test_detail.html'
-    context_object_name = 'test'
+def test_update(request, pk):
+    test = Test.objects.get(pk=pk)
+    data = {}
+    if request.is_ajax and request.method == "POST":
+        form = TestUpdateForm(request.POST, instance=test)
+        if form.is_valid():
+            form.save()
+            data['form_is_valid'] = True
+            tests = Test.objects.all()
+            data['html_test_list'] = render_to_string('product_tests/test_list.html', {'tests': tests}, request=request)
+            messages.add_message(request, messages.SUCCESS, f'{test} has a new name!')
+            
+            django_messages = []
+            for message in messages.get_messages(request):
+                django_messages.append({
+                    "level": message.level,
+                    "message": message.message,
+                    "extra_tags": message.tags,
+            })
+            data['messages'] = django_messages
+        else:
+            data['form_is_valid'] = False
+    else:
+        form = TestUpdateForm(instance=test)
+
+    context = {'form': form, 'test': test}
+
+    data['html_form'] = render_to_string('product_tests/test_update.html', context, request=request)
+
+    return JsonResponse(data)
+
+# test this view
+def test_delete(request, pk):
+    test = get_object_or_404(Test, pk=pk)
+    data = dict()
+    data['delete'] = True
+    if request.method == 'POST':
+        test.delete()
+        data['form_is_valid'] = True
+        tests = Test.objects.all()
+        messages.add_message(request, messages.ERROR, f'{test} has been deleted')
+            
+        django_messages = []
+        for message in messages.get_messages(request):
+            django_messages.append({
+                "level": message.level,
+                "message": message.message,
+                "extra_tags": message.tags,
+            })
+            data['messages'] = django_messages
+        data['html_tests_list'] = render_to_string('product_tests/test_list.html', {'tests': tests}, request=request)
+    else:
+        context = {'test': test}
+        data['html_delete'] = render_to_string('product_tests/test_confirm_delete.html', context, request=request)
+
+    return JsonResponse(data)
+
+# Proccess
+
+def manufacturing_process(request, pk):
+    product = Product.objects.get(pk=pk)
+    processes = ManufacturingProcess.objects.filter(product=product)
+
+    context = {
+        'processes': processes,
+        'product': product
+
+    }
+    return render(request, 'process/process_list.html', context)
+
+class ProcessCreateView(SuccessMessageMixin, CreateView):
+    template_name = 'process/process_create.html'
+    model = ManufacturingProcess
+    form_class = ProcessCreateForm
+    success_message = '%(step)s created!'
+
+    def get_success_url(self):
+        product_id=self.kwargs['pk']
+        return reverse_lazy('products:process', kwargs={'pk': product_id})
+
+    def get_context_data(self, **kwargs):
+        pk = self.kwargs.get('pk')
+        context = super().get_context_data(**kwargs)
+        context['product'] = Product.objects.get(pk=pk)
+        return context
+
+class ProcessUpdateView(SuccessMessageMixin, UpdateView):
+    template_name = 'process/process_detail.html'
+    model = ManufacturingProcess
+    form_class = ProcessUpdateForm
+    success_message = '%(step)s updated!'
 
     def get_object(self, *args, **kwargs):
-        request = self.request
-        pk = self.kwargs.get('pk')
-        instance = Test.objects.get(pk=pk)
+        pk = self.kwargs.get('pk2')
+        instance = ManufacturingProcess.objects.get(pk=pk)
         if instance is None:
-            raise Http404('Test could not be found')
+            raise Http404('Process not found!')
         return instance
 
-class TestUpdateView(SuccessMessageMixin, UpdateView):
-    template_name = 'products_tests/test_update.html'
-    model = Test
-    form_class = TestUpdateForm
-    success_message = '%(name)s was updated successfully'
+    def get_success_url(self):
+        product_id = self.kwargs.get('pk')
+        return reverse_lazy('products:process', kwargs={'pk': product_id})
 
-class TestDeleteView(DeleteView):
-    template_name = 'products_tests/test_confirm_delete.html'
-    model = Test
-    success_url = reverse_lazy('products:tests')
+class ProcessDeleteView(SuccessMessageMixin, DeleteView):
+    template_name = 'process/process_confirm_delete.html'
+    model = ManufacturingProcess
+    success_message = '%(step)s deleted!'
 
+    def get_object(self, *args, **kwargs):
+        pk = self.kwargs.get('pk2')
+        instance = ManufacturingProcess.objects.get(pk=pk)
+        if instance is None:
+            raise Http404('Process not found!')
+        return instance
+
+    def get_success_url(self):
+        product_id = self.kwargs.get('pk')
+        return reverse_lazy('products:process', kwargs={'pk': product_id})

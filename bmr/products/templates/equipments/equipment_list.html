@@ -7,17 +7,18 @@ Equipments
 
 {% block content %}
 
-<div style="margin-left: 30px;" class="mx-auto col-md-12">
+<div style="margin-left: 30px;" class="mx-auto col-md-6">
     <h2 class="mt-3">Equipments</h2>
     <div class="row">
+        <div class="mt-2 container-fluid" id="eq-delete-messages"></div>
         <div class="col-xs-12 col-sm-10 col-md-8 col-lg-6 mt-3">
             <ul class="list-group list-group-flush" id="equipments">
                 {% for equipment in equipments %}
                     <li class="list-group-item">
                         <p>{{ equipment }} - ({{ equipment.id_num }})
-                            <button style="float: right; margin-left: 10px" class="delete-equipment btn btn-outline-danger" 
+                            <button style="float: right; margin-left: 10px" class="js-delete-equipment btn btn-outline-danger" 
                             data-form-url='{% url "products:equipment-delete" equipment.pk %}'>Delete</button>
-                            <button style="float: right;" class="update-equipment btn btn-outline-info" 
+                            <button style="float: right;" class="js-update-equipment btn btn-outline-info" 
                             data-form-url='{% url "products:equipment-update" equipment.pk %}'>Update</button>
                         </p>
                     </li>  
@@ -36,10 +37,10 @@ Equipments
 
 
     {% include 'modal.html' with form=create_form %}
-    {% include "update_modal.html" %}
+    {% include "modals.html" %}
 
     <script src="{% static 'bmr/js/equipment.js' %}"></script>
-    <script src="{% static 'bmr/js/fetch_equipment.js' %}"></script>
+    <script src="{% static 'bmr/js/equipment_update.js' %}"></script>
 
 {% endblock content %}
 

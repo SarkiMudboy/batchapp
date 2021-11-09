@@ -1,12 +1,9 @@
-{% extends "base.html" %}
-
-{% block title %}
-Confirm delete
-{% endblock title %}
-
-{% block content %}
-    <form method="post">{% csrf_token %}
-        <p>Are you sure you want to delete "{{ object }}"?</p>
-        <input type="submit" value="Confirm">
+<div class="m-4 pb-5">
+    <div class="mt-2 container-fluid" id="tst-messages"></div>
+    <form method="post" class="test-delete-html" action="{% url 'products:test-delete' test.pk %}">
+        {% csrf_token %}
+        <h2>Are you sure you want to delete "{{ test }}"?</h2>
+        <button type="submit" class="mt-2 btn btn-outline-danger">Confirm</button>
+        <!-- <input type="submit" value="Confirm"> -->
     </form>
-{% endblock content %}
+</div>

@@ -1,7 +1,5 @@
 from django.forms import ModelForm
-from .models import Product, Equipment, RawMaterial, Specification, Test
-from bootstrap_modal_forms.forms import BSModalModelForm
-
+from .models import Product, Equipment, RawMaterial, Specification, Test, ManufacturingProcess
 
 class ProductCreateForm(ModelForm):
     class Meta:
@@ -30,7 +28,7 @@ class EquipmentCreateForm(ModelForm):
         fields = '__all__'
 
 
-class EquipmentUpdateForm(BSModalModelForm):
+class EquipmentUpdateForm(ModelForm):
     class Meta:
         model = Equipment
         fields = ['name', 'id_num']
@@ -63,4 +61,14 @@ class TestCreateForm(ModelForm):
 class TestUpdateForm(ModelForm):
     class Meta:
         model = Test
-        fields = '__all__'
+        fields = ['name',]
+
+class ProcessCreateForm(ModelForm):
+    class Meta:
+        model = ManufacturingProcess
+        exclude = ['action_duration']
+
+class ProcessUpdateForm(ModelForm):
+    class Meta:
+        model = ManufacturingProcess
+        exclude = ['action_duration']

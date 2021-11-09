@@ -39,7 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     
     # costom apps
-    'products',
+    'products.apps.ProductsConfig',
     'batches',
     'profiles',
     'staff',
@@ -47,7 +47,6 @@ INSTALLED_APPS = [
 
     # external apps
     'crispy_forms',
-    'bootstrap_modal_forms',
     'widget_tweaks',
     
 ]

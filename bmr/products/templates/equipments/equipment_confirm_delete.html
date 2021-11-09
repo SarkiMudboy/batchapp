@@ -1,6 +1,8 @@
 <div class="m-4 pb-5">
-    <form method="post">{% csrf_token %}
-        <h2>Are you sure you want to delete "{{ object }}"?</h2>
+    <div class="mt-2 container-fluid" id="eq-messages"></div>
+    <form method="post" class="js-delete-html" action="{% url 'products:equipment-delete' equipment.pk %}">
+        {% csrf_token %}
+        <h2>Are you sure you want to delete "{{ equipment }}"?</h2>
         <button type="submit" class="mt-2 btn btn-outline-danger">Confirm</button>
         <!-- <input type="submit" value="Confirm"> -->
     </form>

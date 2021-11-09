@@ -120,13 +120,16 @@ class Specification(models.Model):
 class ManufacturingProcess(models.Model):
 
     # manufacturing process for a product
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
-    step = models.IntegerField()
-    substep = models.CharField(max_length=2)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, null=True, blank=True)
+    step = models.CharField(max_length=2, null=True, blank=True)
     action = models.TextField(max_length=250)
-    duration = models.DurationField(help_text='in minutes or seconds', blank=True, null=True)
+    duration = models.CharField(max_length=100, help_text="hours:minutes:seconds", blank=True, null=True)
+    action_duration = models.CharField(max_length=100, blank=True, null=True)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
+    class Meta:
+        order_with_respect_to = "product"
+
     def __str__(self):
-        return self.action[:10]
+        return self.action[:20] + '...'
