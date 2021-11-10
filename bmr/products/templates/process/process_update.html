@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %}
+Update {{ object.step }}
+{% endblock title %}
+
+{% block content %}
+    <div class='mx-auto col-md-6'>
+        <h2 class="mt-3">Update {{ object.step }}</h2>
+        <form action="" method="POST">
+            {% csrf_token %}
+            {{ form|crispy }}
+            <button type="submit" class="mt-3 mb-3 btn btn-outline-info col-md-12 mx-auto">Save</button>
+        </form>
+        <button type="submit" class="mb-5 btn btn-outline-danger col-md-12 mx-auto"
+        onclick=location.href='{% url "products:process-delete" pk=product.pk pk2=object.pk %}'>Delete</button>
+    </div>
+{% endblock content %}

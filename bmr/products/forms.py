@@ -1,4 +1,5 @@
 from django.forms import ModelForm
+from django.core.exceptions import ValidationError
 from .models import Product, Equipment, RawMaterial, Specification, Test, ManufacturingProcess
 
 class ProductCreateForm(ModelForm):
@@ -46,12 +47,12 @@ class RawmaterialUpdateForm(ModelForm):
 class SpecificationCreateForm(ModelForm):
     class Meta:
         model = Specification
-        fields = '__all__'
+        exclude = ['product']
 
 class SpecificationUpdateForm(ModelForm):
     class Meta:
         model = Specification
-        fields = '__all__'
+        exclude = ['product']
 
 class TestCreateForm(ModelForm):
     class Meta:
@@ -66,9 +67,38 @@ class TestUpdateForm(ModelForm):
 class ProcessCreateForm(ModelForm):
     class Meta:
         model = ManufacturingProcess
-        exclude = ['action_duration']
+        exclude = ['product', 'action_duration']
+
+    def __init__(self, *args, **kwargs):
+        self.request_kwargs = kwargs.pop('request_kwargs')
+        super(ProcessCreateForm, self).__init__(*args, **kwargs)
+
+    def clean(self):
+        cleaned_data = super(ProcessCreateForm, self).clean()
+        product = Product.objects.get(pk=self.request_kwargs.get('pk'))
+        print(product)
+        processes = ManufacturingProcess.objects.filter(product=product)
+        for process in processes:
+            if process.step == cleaned_data.get('step'):
+                raise ValidationError("A process with this step exists!")
+        return cleaned_data
+
 
 class ProcessUpdateForm(ModelForm):
     class Meta:
         model = ManufacturingProcess
-        exclude = ['action_duration']
+        exclude = ['product', 'action_duration']
+
+    def __init__(self, *args, **kwargs):
+        self.request_kwargs = kwargs.pop('request_kwargs')
+        super(ProcessUpdateForm, self).__init__(*args, **kwargs)
+
+    def clean(self):
+        cleaned_data = super(ProcessUpdateForm, self).clean()
+        product = Product.objects.get(pk=self.request_kwargs.get('pk'))
+        print(product)
+        processes = ManufacturingProcess.objects.filter(product=product)
+        for process in processes:
+            if process.step == cleaned_data.get('step'):
+                raise ValidationError("A process with this step exists!")
+        return cleaned_data

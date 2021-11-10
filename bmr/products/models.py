@@ -36,8 +36,8 @@ class Product(models.Model):
         ]
 
     # product drug
-    product_name = models.CharField(max_length=100)
-    generic_name = models.CharField(max_length=100)
+    product_name = models.CharField(max_length=100, unique=True)
+    generic_name = models.CharField(max_length=100, unique=True)
     description = models.TextField(max_length=250)
     unit_size = models.PositiveIntegerField(help_text='in milligrams', blank=True, null=True)
     label_claim = models.PositiveIntegerField(help_text='in milligrams', blank=True, null=True)
@@ -78,8 +78,8 @@ class RawMaterial(models.Model):
 class Equipment(models.Model):
 
     # product equipments
-    name = models.CharField(max_length=100)
-    id_num = models.CharField(max_length=20)
+    name = models.CharField(max_length=100, unique=True)
+    id_num = models.CharField(max_length=20, unique=True)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
@@ -93,7 +93,7 @@ class Equipment(models.Model):
 class Test(models.Model):
 
     # tests
-    name = models.CharField(max_length=50)
+    name = models.CharField(max_length=50, unique=True)
 
     def __str__(self):
         return self.name
@@ -101,7 +101,7 @@ class Test(models.Model):
 class Specification(models.Model):
 
     # products specs
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, null=True, blank=True)
     test = models.ForeignKey(Test, on_delete=models.CASCADE)
     specification = models.FloatField(blank=True)
     deviation = models.FloatField(blank=True, null=True)
@@ -121,7 +121,7 @@ class ManufacturingProcess(models.Model):
 
     # manufacturing process for a product
     product = models.ForeignKey(Product, on_delete=models.CASCADE, null=True, blank=True)
-    step = models.CharField(max_length=2, null=True, blank=True)
+    step = models.CharField(max_length=6, null=True, blank=True)
     action = models.TextField(max_length=250)
     duration = models.CharField(max_length=100, help_text="hours:minutes:seconds", blank=True, null=True)
     action_duration = models.CharField(max_length=100, blank=True, null=True)

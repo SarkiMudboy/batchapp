@@ -284,6 +284,10 @@ class ProductSpecificationUpdateView(SuccessMessageMixin, UpdateView):
             raise Http404('Specification could not be found')
         return instance
 
+    def form_valid(self, form):
+        form.instance.product = Product.objects.get(pk=self.kwargs.get('pk'))
+        return super().form_valid(form)
+
     def get_success_url(self):
         product_id=self.kwargs['pk']
         return reverse_lazy('products:specs', kwargs={'pk': product_id})
@@ -315,6 +319,10 @@ class ProductSpecificationCreateView(SuccessMessageMixin, CreateView):
     def get_success_url(self):
         product_id=self.kwargs['pk']
         return reverse_lazy('products:specs', kwargs={'pk': product_id})
+
+    def form_valid(self, form):
+        form.instance.product = Product.objects.get(pk=self.kwargs.get('pk'))
+        return super().form_valid(form)
 
     def get_context_data(self, **kwargs):
         pk = self.kwargs.get('pk')
@@ -436,6 +444,15 @@ class ProcessCreateView(SuccessMessageMixin, CreateView):
         product_id=self.kwargs['pk']
         return reverse_lazy('products:process', kwargs={'pk': product_id})
 
+    def get_form_kwargs(self):
+        kw = super(ProcessCreateView, self).get_form_kwargs()
+        kw['request_kwargs'] = self.kwargs
+        return kw
+
+    def form_valid(self, form):
+        form.instance.product = Product.objects.get(pk=self.kwargs.get('pk'))
+        return super().form_valid(form)
+
     def get_context_data(self, **kwargs):
         pk = self.kwargs.get('pk')
         context = super().get_context_data(**kwargs)
@@ -443,10 +460,9 @@ class ProcessCreateView(SuccessMessageMixin, CreateView):
         return context
 
 class ProcessUpdateView(SuccessMessageMixin, UpdateView):
-    template_name = 'process/process_detail.html'
+    template_name = 'process/process_update.html'
     model = ManufacturingProcess
     form_class = ProcessUpdateForm
-    success_message = '%(step)s updated!'
 
     def get_object(self, *args, **kwargs):
         pk = self.kwargs.get('pk2')
@@ -454,6 +470,23 @@ class ProcessUpdateView(SuccessMessageMixin, UpdateView):
         if instance is None:
             raise Http404('Process not found!')
         return instance
+
+    def get_form_kwargs(self):
+        kw = super(ProcessUpdateView, self).get_form_kwargs()
+        kw['request_kwargs'] = self.kwargs
+        return kw
+
+    def form_valid(self, form):
+        form.instance.product = Product.objects.get(pk=self.kwargs.get('pk'))
+        step = form.instance.step
+        messages.success(self.request, f'{step} updated!')
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        pk = self.kwargs.get('pk')
+        context = super().get_context_data(**kwargs)
+        context['product'] = Product.objects.get(pk=pk)
+        return context
 
     def get_success_url(self):
         product_id = self.kwargs.get('pk')
@@ -470,7 +503,7 @@ class ProcessDeleteView(SuccessMessageMixin, DeleteView):
         if instance is None:
             raise Http404('Process not found!')
         return instance
-
+    
     def get_success_url(self):
         product_id = self.kwargs.get('pk')
         return reverse_lazy('products:process', kwargs={'pk': product_id})
