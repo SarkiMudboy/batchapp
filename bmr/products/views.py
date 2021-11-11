@@ -79,7 +79,9 @@ def postEquipment(request):
     if request.is_ajax and request.method == 'POST':
         # get the form data
         form = EquipmentCreateForm(request.POST)
+
         if form.is_valid():
+
             instance = form.save()
 
             # add success message
@@ -102,8 +104,14 @@ def postEquipment(request):
             # send to the client side
             return JsonResponse({'instance': ser_instance, 'message': data}, status=200)
         else:
+            error_list = list()
+
+            for field in form:
+                for error in field.errors:
+                    error_list.append(error)
+                    
             # some form errors occured.
-            return JsonResponse({"error": form.errors}, status=400)
+            return JsonResponse({"errors": error_list}, status=400)
     # some error occured.
     return JsonResponse({'error': ''}, status=400)
 

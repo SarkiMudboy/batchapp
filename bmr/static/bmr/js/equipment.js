@@ -34,7 +34,12 @@
             },
             error: function (response) {
                 // alert the error if any error occured
-                alert(response["error"]);
+                error_message = response.responseJSON.errors;
+                error_message.forEach(addError)
+                function addError (err) {
+                $("#messages").append(`<div class='text-center alert alert-danger'>${err}</div>`);
+                };
+                $("#eq-form").trigger('reset');
             }
         })
     })
