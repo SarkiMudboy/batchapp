@@ -1,4 +1,5 @@
 from django.db import models
+from django.urls import reverse
 from django.core.validators import validate_comma_separated_integer_list
 from products.models import Product, Specification, Test, Equipment, ManufacturingProcess
 from staff.models import Staff
@@ -27,8 +28,11 @@ class Batch(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
+    def get_absolute_url(self):
+        return reverse('batches:batch-pages', kwargs={'pk2': self.pk, 'pk': self.product.pk})
+
     def __str__(self):
-        return f'{self.batch_number} for {self.product.name}'
+        return f'{self.batch_number} for {self.product}'
 
 # Quality Control (Chemical and Microbiological)
 
