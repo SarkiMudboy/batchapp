@@ -54,7 +54,7 @@ class BatchUpdateForm(ModelForm):
 
 class BatchRecordsCheckForm(forms.Form):
     # records
-    pages = ['Batch Info', 'Production Initiation', 'Issuance', 'Standard Instructions', 'Equipment Check List', 'Equipment Line Clearance', 
+    pages = ['Batch Info', 'Production Initiation', 'Guide', 'Equipment Check List', 'Equipment Line Clearance', 
     'Master Formula Sheet', 'Bill of Raw Materials', 'Process', 'Raw Material Check', 'Process control', 'QC Analysis Report', 'Bill of packaging',
     'Product Reconiliation', 'Batch Release']
 
@@ -63,4 +63,20 @@ class BatchRecordsCheckForm(forms.Form):
     batch_records = forms.MultipleChoiceField(required=False, 
         widget=forms.CheckboxSelectMultiple, 
         choices=BATCH_RECORDS)
+
+class BatchInfoForm(ModelForm):
+    class Meta:
+        model = BatchInfoAuth
+        exclude = ['batch']
+
+class GuideForm(ModelForm):
+    class Meta:
+        model = Guide
+        exclude = ['batch']
+
+class EquipmentCheckListForm(ModelForm):
+    class Meta:
+        model = EquipmentCheck
+        exclude = ['batch']
+
 

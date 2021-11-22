@@ -1,6 +1,7 @@
 from django.contrib import admin
 from .models import (
     Batch,
+    BatchInfoAuth,
     TestResult,
     QualityControlAnalysis,
     ControlRecords,
@@ -13,6 +14,7 @@ from .models import (
     RawMaterialBillAuth,
     EquipmentCheck,
     EquipmentClearance,
+    EQClearanceAuth,
     BatchManufacturingProcess,
     BatchManufacturingProcessAuth,
     PackagingMaterial,
@@ -27,6 +29,7 @@ from .models import (
 # Register your models here.
 
 admin.site.register(Batch)
+admin.site.register(BatchInfoAuth)
 admin.site.register(TestResult)
 admin.site.register(QualityControlAnalysis)
 admin.site.register(ControlRecords)
@@ -48,3 +51,4 @@ admin.site.register(BatchPackagingAuth)
 admin.site.register(ProductReconciliation)
 admin.site.register(ReleaseProfile)
 admin.site.register(Guide)
+admin.site.register(EQClearanceAuth)

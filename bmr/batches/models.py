@@ -25,6 +25,7 @@ class Batch(models.Model):
     production_completion = models.DateField(blank=True, null=True)
     release_status = models.BooleanField(default=False, blank=True, null=True)
     yield_deviation_limit = models.FloatField(help_text='+/-', blank=True, null=True)
+    document_reference_number = models.CharField(max_length=20, blank=True, null=True)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
@@ -33,6 +34,20 @@ class Batch(models.Model):
 
     def __str__(self):
         return f'{self.batch_number} for {self.product}'
+
+class BatchInfoAuth(models.Model):
+
+    batch = models.OneToOneField(Batch, related_name="%(class)s_info_auth", on_delete=models.CASCADE)
+
+    prepared_by = models.ForeignKey('staff.Staff', blank=True, null=True, related_name='%(class)s_prepared_by', on_delete=models.CASCADE)
+    reviewed_by = models.ForeignKey('staff.Staff', blank=True, null=True, related_name='%(class)s_reviewed_by', on_delete=models.CASCADE)
+    approved_by = models.ForeignKey('staff.Staff', blank=True, null=True, related_name='%(class)s_approved_by', on_delete=models.CASCADE)
+    
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return "Batch Info Auth"
 
 # Quality Control (Chemical and Microbiological)
 
@@ -180,22 +195,30 @@ class EquipmentCheck(models.Model):
     updated = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return self.batch + self.equipment + 'check'
+        return self.batch.batch_number + ' ' + self.equipment.name + ' check'
 
 class EquipmentClearance(models.Model):
     batch = models.ForeignKey(Batch, on_delete=models.CASCADE)
-    last_product = models.ForeignKey(Product, related_name='%(class)s_last_product', blank=True, null=True, on_delete=models.CASCADE)
-    next_product = models.ForeignKey(Product, related_name='%(class)s_next_product', blank=True, null=True, on_delete=models.CASCADE)
     check = models.TextField(max_length=500)
     cleaned_by = models.ForeignKey(Staff, related_name='%(class)s_cleaned_by', blank=True, null=True, on_delete=models.CASCADE)
     checked_by = models.ForeignKey(Staff, related_name='%(class)s_checked_by', blank=True, null=True, on_delete=models.CASCADE)
     approved_by = models.ForeignKey(Staff, related_name='%(class)s_approved_by', blank=True, null=True, on_delete=models.CASCADE)
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.batch.batch_number + self.equipment.name + 'clearance'
+
+class EQClearanceAuth(models.Model):
+    clearance = models.ForeignKey(EquipmentClearance, on_delete=models.CASCADE) 
+    last_product = models.ForeignKey(Product, related_name='%(class)s_last_product', blank=True, null=True, on_delete=models.CASCADE)
+    next_product = models.ForeignKey(Product, related_name='%(class)s_next_product', blank=True, null=True, on_delete=models.CASCADE)
     quality_assurance_manager = models.ForeignKey(Staff, related_name='%(class)s_qa_manager', blank=True, null=True, on_delete=models.CASCADE)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return self.batch + self.equipment + 'clearance'
+        return self.batch.batch_number + self.equipment.name + 'clearance auth'
 
 # Manufacturing 
 
@@ -275,6 +298,8 @@ class BatchPackagingAuth(models.Model):
 
 class ProductReconciliation(models.Model):
 
+    # batch = models.OneToOneField(Batch, on_delete=models.CASCADE)
+
     # samples
     purpose = models.TextField(max_length=100)
     quantity = models.IntegerField(null=True, blank=True)
@@ -307,6 +332,7 @@ class ProductReconciliation(models.Model):
 # release profile
 
 class ReleaseProfile(models.Model):
+    # batch = models.OneToOneField(Batch, on_delete=models.CASCADE)
     parameter = models.CharField(max_length=100)
     test = models.ForeignKey(Test, blank=True, null=True, on_delete=models.CASCADE)
     analytical_result = models.BooleanField(default=False)
@@ -320,13 +346,14 @@ class ReleaseProfile(models.Model):
         return self.batch + "release profile"
 
 class Guide(models.Model):
-    standard_instructions = models.TextField(max_length=8000)
-    issuance = models.TextField(max_length=8000)
+    batch = models.OneToOneField(Batch, on_delete=models.CASCADE, null=True, blank=True)
+    standard_instructions = models.TextField(max_length=8000, null=True, blank=True)
+    issuance = models.TextField(max_length=8000, null=True, blank=True)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
     
     def __str__(self):
-        return self.batch + "guide"
+        return self.batch.batch_number + " guide"
 
 
 
