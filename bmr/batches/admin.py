@@ -14,7 +14,6 @@ from .models import (
     RawMaterialBillAuth,
     EquipmentCheck,
     EquipmentClearance,
-    EQClearanceAuth,
     BatchManufacturingProcess,
     BatchManufacturingProcessAuth,
     PackagingMaterial,
@@ -51,4 +50,3 @@ admin.site.register(BatchPackagingAuth)
 admin.site.register(ProductReconciliation)
 admin.site.register(ReleaseProfile)
 admin.site.register(Guide)
-admin.site.register(EQClearanceAuth)

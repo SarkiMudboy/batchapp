@@ -1,6 +1,8 @@
 from django.shortcuts import render, Http404
 from django.urls import reverse_lazy
 from django.shortcuts import get_object_or_404
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
 from django.contrib.messages.views import SuccessMessageMixin
 from django.views.generic import ListView, CreateView, UpdateView, DetailView, DeleteView, FormView
 from django.views.generic.edit import FormMixin
@@ -9,7 +11,7 @@ from products.models import Product
 from datetime import date
 from .models import *
 from .forms import (BatchCreateForm, BatchUpdateForm, BatchRecordsCheckForm, BatchInfoForm, GuideForm,
-	EquipmentCheckListForm,)
+	EquipmentCheckListForm, EquipmentClearanceForm,)
 
 # Create your views here.
 
@@ -349,67 +351,67 @@ class EQCheckListDelete(DeleteView):
 		batch_id = self.kwargs.get('pk2')
 		return reverse_lazy('batches:equipment-check-list', kwargs={'pk': product_id, 'pk2': batch_id})
 
-# class EquipmentClearanceView(FormView):
-# 	template_name = 'batch/equipment_clearance.html'
-# 	form_class = EquipmentClearanceForm
-# 	second_form_class = EQclearAuthForm
-# 	model = EquipmentClearance
-# 	is_created = False
+class EquipmentClearanceView(FormView):
+	template_name = 'batch/equipment_clearance.html'
+	form_class = EquipmentClearanceForm
+	model = EquipmentClearance
+	is_created = False
 
-# 	def get_form(self, form_class=form_class):
-# 		"""
-# 		Check to see if the its an update request else return empty form
-# 		"""
-# 		if "pk3" in self.kwargs:
-# 			eq_clear = get_object_or_404(EquipmentClearance, pk=self.kwargs.get('pk3'))
-# 			self.is_created = True
-# 			return form_class(instance=eq_clear, **self.get_form_kwargs())
-# 		else:
-# 			try:
-# 				equipment_clear = EquipmentClearance.objects.filter(batch=get_object_or_404(Batch, pk=self.kwargs.get('pk2')))	
-# 				self.is_created = True
-# 			except EquipmentClearance.DoesNotExist:
-# 				pass
-# 			return form_class(**self.get_form_kwargs())
+	def get_form(self, form_class=form_class):
+		"""
+		Check to see if the its an update request else return empty form
+		"""
+		if "pk3" in self.kwargs:
+			eq_clear = get_object_or_404(EquipmentClearance, pk=self.kwargs.get('pk3'))
+			self.is_created = True
+			return form_class(instance=eq_clear, **self.get_form_kwargs())
+		else:
+			try:
+				equipment_clear = EquipmentClearance.objects.filter(batch=get_object_or_404(Batch, pk=self.kwargs.get('pk2')))	
+				self.is_created = True
+			except EquipmentClearance.DoesNotExist:
+				pass
+			return form_class(**self.get_form_kwargs())
 
-# 	def form_valid(self, form):
-# 		form.instance.batch = get_object_or_404(Batch, pk=self.kwargs.get('pk2'))
-# 		try:
-# 			form.save()
-# 		except IntegrityError:
-# 			pass
-# 		return super(EquipmentClearanceView, self).form_valid(form)
+	def form_valid(self, form):
+		form.instance.batch = get_object_or_404(Batch, pk=self.kwargs.get('pk2'))
 
-# 	def get_context_data(self, **kwargs):
-# 		context = super().get_context_data(**kwargs)
-# 		context['records'] = self.request.session['batch_records']
-# 		context['batch'] = get_object_or_404(Batch, pk=self.kwargs.get('pk2'))
-# 		context['product'] = get_object_or_404(Product, pk=self.kwargs.get('pk'))
-# 		context['form2'] = self.second_form_class(request=self.request)
-# 		if self.is_created:
-# 			context['clearance'] = EquipmentClearance.objects.filter(batch=get_object_or_404(Batch, pk=self.kwargs.get('pk2')))
-# 		return context
+		try:
+			form.save()
+		except IntegrityError:
+			pass
+		return super(EquipmentClearanceView, self).form_valid(form)
 
-# 	def get_success_url(self):
-# 		product_id = self.kwargs.get('pk')
-# 		batch_id = self.kwargs.get('pk2')
-# 		return reverse_lazy('batches:equipment-check-list', kwargs={'pk': product_id, 'pk2': batch_id})
+	def get_context_data(self, **kwargs):
+		context = super().get_context_data(**kwargs)
+		context['records'] = self.request.session['batch_records']
+		context['batch'] = get_object_or_404(Batch, pk=self.kwargs.get('pk2'))
+		context['product'] = get_object_or_404(Product, pk=self.kwargs.get('pk'))
+		if self.is_created:
+			context['clearances'] = EquipmentClearance.objects.filter(batch=get_object_or_404(Batch, pk=self.kwargs.get('pk2')))
+		return context
 
-# class EQClearanceDelete(DeleteView):
-# 	template_name = 'batch/equipmentclearance_confirm_delete.html'
-# 	model = EquipmentClearance
-# 	context_object_name = 'clearance'
+	def get_success_url(self):
+		product_id = self.kwargs.get('pk')
+		batch_id = self.kwargs.get('pk2')
+		return reverse_lazy('batches:equipment-line-clearance', kwargs={'pk': product_id, 'pk2': batch_id})
 
-# 	def get_object(self, *args, **kwargs):
-# 		request = self.request
-# 		pk = self.kwargs.get('pk3')
-# 		instance = EquipmentClearance.objects.get(pk=pk)
-# 		if instance is None:
-# 			raise Http404('Batch Info could not be found')
-# 		return instance
+@method_decorator(csrf_exempt, name='dispatch')
+class EQClearanceDelete(DeleteView):
+	template_name = 'batch/equipmentclearance_confirm_delete.html'
+	model = EquipmentClearance
+	context_object_name = 'clearance'
 
-# 	def get_success_url(self):
-# 		product_id = self.kwargs['pk']
-# 		batch_id = self.kwargs.get('pk2')
-# 		return reverse_lazy('batches:equipment-check-list', kwargs={'pk': product_id, 'pk2': batch_id})
+	def get_object(self, *args, **kwargs):
+		request = self.request
+		pk = self.kwargs.get('pk3')
+		instance = EquipmentClearance.objects.get(pk=pk)
+		if instance is None:
+			raise Http404('Batch Info could not be found')
+		return instance
+
+	def get_success_url(self):
+		product_id = self.kwargs['pk']
+		batch_id = self.kwargs.get('pk2')
+		return reverse_lazy('batches:equipment-line-clearance', kwargs={'pk': product_id, 'pk2': batch_id})
 

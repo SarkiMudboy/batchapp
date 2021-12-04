@@ -1,9 +1,9 @@
 from django.db import models
 from django.urls import reverse
 from django.core.validators import validate_comma_separated_integer_list
-from products.models import Product, Specification, Test, Equipment, ManufacturingProcess
+from products.models import Product, Specification, Test, Equipment, ManufacturingProcess, RawMaterial
 from staff.models import Staff
-from rawmaterials.models import RawMaterial, RawMaterialBatch
+from rawmaterials.models import Rawmaterial, RawMaterialBatch
 
 # Create your models here.
 
@@ -173,14 +173,18 @@ class RawMaterialPackagingBill(models.Model):
         return self.raw_material + self.batch + ' raw material packaging bill'
 
 class RawMaterialBillAuth(models.Model):
-    batch = models.OneToOneField(Batch, on_delete=models.CASCADE)
-    confirmed_by = models.ManyToManyField(Staff, blank=True)
+    batch = models.ForeignKey(Batch, on_delete=models.CASCADE)
+    raw_material = models.ForeignKey(RawMaterial, on_delete=models.CASCADE, null=True, blank=True)
+    actual_quantity = models.IntegerField(help_text="in kilograms or gram mil", blank=True, null=True)
+    action_by = models.ForeignKey(Staff, related_name='%(class)s_action_by', blank=True, null=True, on_delete=models.CASCADE)
+    checked_by = models.ForeignKey(Staff, related_name='%(class)s_checked_by', blank=True, null=True, on_delete=models.CASCADE)
+    confirmed_by = models.ManyToManyField(Staff, blank=True, null=True)
     approved_by = models.ForeignKey(Staff, related_name='%(class)s_approved_by', blank=True, null=True, on_delete=models.CASCADE)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return self.batch + ' raw material bill authentication'
+        return self.batch.batch_number + ' raw material bill authentication'
 
 # Equipments
 
@@ -203,14 +207,6 @@ class EquipmentClearance(models.Model):
     cleaned_by = models.ForeignKey(Staff, related_name='%(class)s_cleaned_by', blank=True, null=True, on_delete=models.CASCADE)
     checked_by = models.ForeignKey(Staff, related_name='%(class)s_checked_by', blank=True, null=True, on_delete=models.CASCADE)
     approved_by = models.ForeignKey(Staff, related_name='%(class)s_approved_by', blank=True, null=True, on_delete=models.CASCADE)
-    created = models.DateTimeField(auto_now_add=True)
-    updated = models.DateTimeField(auto_now=True)
-
-    def __str__(self):
-        return self.batch.batch_number + self.equipment.name + 'clearance'
-
-class EQClearanceAuth(models.Model):
-    clearance = models.ForeignKey(EquipmentClearance, on_delete=models.CASCADE) 
     last_product = models.ForeignKey(Product, related_name='%(class)s_last_product', blank=True, null=True, on_delete=models.CASCADE)
     next_product = models.ForeignKey(Product, related_name='%(class)s_next_product', blank=True, null=True, on_delete=models.CASCADE)
     quality_assurance_manager = models.ForeignKey(Staff, related_name='%(class)s_qa_manager', blank=True, null=True, on_delete=models.CASCADE)
@@ -218,7 +214,7 @@ class EQClearanceAuth(models.Model):
     updated = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return self.batch.batch_number + self.equipment.name + 'clearance auth'
+        return self.batch.batch_number + 'equipment clearance'
 
 # Manufacturing 
 

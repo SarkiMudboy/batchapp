@@ -2,7 +2,7 @@ from django.db import models
 
 # Create your models here.
 
-class RawMaterial(models.Model):
+class Rawmaterial(models.Model):
 
     # raw materials
     name = models.CharField(max_length=64)
@@ -17,7 +17,7 @@ class RawMaterial(models.Model):
 class RawMaterialBatch(models.Model):
 
     # raw materials batches go here 
-    raw_material = models.ForeignKey(RawMaterial, on_delete=models.CASCADE)
+    raw_material = models.ForeignKey(Rawmaterial, on_delete=models.CASCADE)
     batch = models.CharField(max_length=50)
     manufacturing_date = models.DateField(blank=True, null=True)
     expiry_date = models.DateField(blank=True, null=True)
