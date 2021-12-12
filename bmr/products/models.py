@@ -61,7 +61,7 @@ class RawMaterial(models.Model):
     # product raw materials
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     name = models.ForeignKey(RawMaterialBatch, on_delete=models.CASCADE)
-    standard_quantity = models.FloatField(help_text='in kilograms or gram mil', null=True, blank=True)
+    standard_quantity = models.CharField(max_length=40, null=True, blank=True)
     potency = models.FloatField(help_text='in percentage', null=True, blank=True)
     percentage_formula = models.FloatField(help_text='in percentage', null=True, blank=True)
     unit_formula_quantity = models.FloatField(help_text='in milligrams', null=True, blank=True)

@@ -221,27 +221,18 @@ class EquipmentClearance(models.Model):
 class BatchManufacturingProcess(models.Model):
     batch = models.ForeignKey(Batch, on_delete=models.CASCADE)
     step = models.ForeignKey(ManufacturingProcess, on_delete=models.CASCADE)
-    action_from = models.DateTimeField(blank=True, null=True)
-    action_to = models.DateTimeField(blank=True, null=True)
+    action_from = models.TimeField(blank=True, null=True)
+    action_to = models.TimeField(blank=True, null=True)
     action_by = models.ForeignKey(Staff, related_name='%(class)s_action_by', blank=True, null=True, on_delete=models.CASCADE)
     checked_by = models.ForeignKey(Staff, related_name='%(class)s_checked_by', blank=True, null=True, on_delete=models.CASCADE)
-    created = models.DateTimeField(auto_now_add=True)
-    updated = models.DateTimeField(auto_now=True)
-
-    def __str__(self):
-        return self.batch + self.step + 'process'
-
-# Auth
-class BatchManufacturingProcessAuth(models.Model):
-    process = models.OneToOneField(BatchManufacturingProcess, on_delete=models.CASCADE)
-    manufacturing_commenced = models.DateField()
-    manufacturing_completed = models.DateField()
+    manufacturing_commenced = models.DateField(null=True, blank=True)
+    manufacturing_completed = models.DateField(null=True, blank=True)
     production_manager = models.ForeignKey(Staff, related_name='%(class)s_production_manager', blank=True, null=True, on_delete=models.CASCADE)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return self.batch + self.process + 'authentication'
+        return self.batch.batch_number + self.step.step + 'process'
 
 # Packaging
 

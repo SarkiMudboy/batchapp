@@ -15,7 +15,6 @@ from .models import (
     EquipmentCheck,
     EquipmentClearance,
     BatchManufacturingProcess,
-    BatchManufacturingProcessAuth,
     PackagingMaterial,
     BillOfPackaging,
     BatchPackagingProcess,
@@ -42,7 +41,6 @@ admin.site.register(RawMaterialBillAuth)
 admin.site.register(EquipmentCheck)
 admin.site.register(EquipmentClearance)
 admin.site.register(BatchManufacturingProcess)
-admin.site.register(BatchManufacturingProcessAuth)
 admin.site.register(PackagingMaterial)
 admin.site.register(BillOfPackaging)
 admin.site.register(BatchPackagingProcess)

@@ -65,6 +65,7 @@ class TestUpdateForm(ModelForm):
         fields = ['name',]
 
 class ProcessCreateForm(ModelForm):
+
     class Meta:
         model = ManufacturingProcess
         exclude = ['product', 'action_duration']
@@ -72,6 +73,10 @@ class ProcessCreateForm(ModelForm):
     def __init__(self, *args, **kwargs):
         self.request_kwargs = kwargs.pop('request_kwargs')
         super(ProcessCreateForm, self).__init__(*args, **kwargs)
+        self.fields['action'].widget.attrs={
+        'id': 'complete-id',
+        'placeholder': 'Enter the step...'
+        }
 
     def clean(self):
         cleaned_data = super(ProcessCreateForm, self).clean()
@@ -92,13 +97,16 @@ class ProcessUpdateForm(ModelForm):
     def __init__(self, *args, **kwargs):
         self.request_kwargs = kwargs.pop('request_kwargs')
         super(ProcessUpdateForm, self).__init__(*args, **kwargs)
+        self.fields['action'].widget.attrs={
+        'id': 'complete-id',
+        }
 
     def clean(self):
         cleaned_data = super(ProcessUpdateForm, self).clean()
         product = Product.objects.get(pk=self.request_kwargs.get('pk'))
-        print(product)
+        product_process = ManufacturingProcess.objects.get(pk=self.request_kwargs.get('pk2'))
         processes = ManufacturingProcess.objects.filter(product=product)
         for process in processes:
-            if process.step == cleaned_data.get('step'):
+            if process.step == cleaned_data.get('step') and process.id != product_process.id:
                 raise ValidationError("A process with this step exists!")
         return cleaned_data

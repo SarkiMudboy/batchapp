@@ -4,7 +4,7 @@ from .views import (BatchProductListView, BatchListView, BatchCreateView,
     ProductInitiationView, GuideView, GuideDelete, EquipmentCheckListView, EQCheckListDelete,
     EquipmentClearanceView, EQClearanceDelete,
     )
-from .extended_views import MasterFormulaView, BillofRawMaterialView, RMBillDelete
+from .extended_views import MasterFormulaView, BillofRawMaterialView, RMBillDelete, BatchManufacturingView, ProcessDelete
 
 app_name = 'batches'
 
@@ -37,4 +37,9 @@ urlpatterns = [
     path('batches/<int:pk>/<int:pk2>/raw-material-bill/', BillofRawMaterialView.as_view(), name="bill-of-raw-materials"),
     path('batches/<int:pk>/<int:pk2>/raw-material-bill/<int:pk3>/delete', RMBillDelete.as_view(), name="raw-bill-delete"),
     path('batches/<int:pk>/<int:pk2>/raw-material-bill/<int:pk3>/update', BillofRawMaterialView.as_view(), name="raw-bill-update"),
+
+    path('batches/<int:pk>/<int:pk2>/process/', BatchManufacturingView.as_view(), name="process"),
+    path('batches/<int:pk>/<int:pk2>/process/<int:pk3>/delete', ProcessDelete.as_view(), name="process-delete"),
+    path('batches/<int:pk>/<int:pk2>/process/<int:pk3>/update', BatchManufacturingView.as_view(), name="process-update"),
+
 ]

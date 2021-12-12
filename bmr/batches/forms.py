@@ -90,7 +90,7 @@ class EquipmentClearanceForm(ModelForm):
         instance = super(EquipmentClearanceForm, self).save(commit=False)
         instance.save()
 
-        # updates many to many fields in other model instances from the db
+        # updates fields in other model instances from the db
         update_fields(instance, EquipmentClearance, ['last_product', 'next_product', 'quality_assurance_manager'])
 
         if commit:
@@ -116,5 +116,43 @@ class RawMaterialBillForm(ModelForm):
 
         # updates fields in other model instances from the db
         update_fields(instance, RawMaterialBillAuth, ['approved_by'], includes_m2m=True)
+
+        return instance
+
+class ProcessForm(ModelForm):
+    class Meta:
+        model = BatchManufacturingProcess
+        exclude = ['batch']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['action_from'].widget = forms.TimeInput(format='%H:%M',
+            attrs={'class': 'form-control',
+            'type': 'time', 
+            'placeholder': 'Select time',})
+        self.fields['action_to'].widget = forms.TimeInput(format='%H:%M',
+            attrs={'class': 'form-control',
+            'type': 'time', 
+            'placeholder': 'Select time',})
+        self.fields['manufacturing_commenced'].widget=forms.DateInput(format=('%Y-%m-%d'),
+            attrs={'class': 'form-control', 
+            'placeholder': 'Select a date',
+            'type': 'date' })
+        self.fields['manufacturing_completed'].widget=forms.DateInput(format=('%Y-%m-%d'),
+            attrs={'class': 'form-control', 
+            'placeholder': 'Select a date',
+            'type': 'date' })
+
+
+    def save(self, commit=True):
+
+        instance = super(ProcessForm, self).save(commit=False)
+        instance.save()
+
+        # updates many to many fields in other model instances from the db
+        update_fields(instance, BatchManufacturingProcess, ['manufacturing_commenced', 'manufacturing_completed', 'production_manager'])
+
+        if commit:
+            instance.save()
 
         return instance
