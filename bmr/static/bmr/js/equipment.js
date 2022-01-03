@@ -21,7 +21,7 @@
                     var fields = instance[0]["fields"];
 
                     var message = response['message']['messages'][0]
-
+                    
                     $("#messages").append(`<div class='text-center alert alert-${message.extra_tags}'>${message.message}</div>`);
 
                     $('#my-equipments').append(`

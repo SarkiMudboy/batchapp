@@ -5,11 +5,9 @@ from .models import (
     TestResult,
     QualityControlAnalysis,
     ControlRecords,
-    IndividualWieght,
+    # IndividualWeight,
     CleaningProcess,
-    InprocessAuth,
     RawMaterialCheckRecord,
-    RawMaterialCheckRecordAuth,
     RawMaterialPackagingBill,
     RawMaterialBillAuth,
     EquipmentCheck,
@@ -31,11 +29,9 @@ admin.site.register(BatchInfoAuth)
 admin.site.register(TestResult)
 admin.site.register(QualityControlAnalysis)
 admin.site.register(ControlRecords)
-admin.site.register(IndividualWieght)
+# admin.site.register(IndividualWeight)
 admin.site.register(CleaningProcess)
-admin.site.register(InprocessAuth)
 admin.site.register(RawMaterialCheckRecord)
-admin.site.register(RawMaterialCheckRecordAuth)
 admin.site.register(RawMaterialPackagingBill)
 admin.site.register(RawMaterialBillAuth)
 admin.site.register(EquipmentCheck)

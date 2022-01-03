@@ -4,7 +4,8 @@ from .views import (BatchProductListView, BatchListView, BatchCreateView,
     ProductInitiationView, GuideView, GuideDelete, EquipmentCheckListView, EQCheckListDelete,
     EquipmentClearanceView, EQClearanceDelete,
     )
-from .extended_views import MasterFormulaView, BillofRawMaterialView, RMBillDelete, BatchManufacturingView, ProcessDelete
+from .extended_views import (MasterFormulaView, BillofRawMaterialView, RMBillDelete, BatchManufacturingView, 
+    ProcessDelete, RawMaterialCheckView, RMCheckDelete, process_control)
 
 app_name = 'batches'
 
@@ -42,4 +43,11 @@ urlpatterns = [
     path('batches/<int:pk>/<int:pk2>/process/<int:pk3>/delete', ProcessDelete.as_view(), name="process-delete"),
     path('batches/<int:pk>/<int:pk2>/process/<int:pk3>/update', BatchManufacturingView.as_view(), name="process-update"),
 
+    path('batches/<int:pk>/<int:pk2>/raw-material-check/', RawMaterialCheckView.as_view(), name="raw-material-check"),
+    path('batches/<int:pk>/<int:pk2>/raw-material-check/<int:pk3>/delete', RMCheckDelete.as_view(), name="raw-check-delete"),
+    path('batches/<int:pk>/<int:pk2>/raw-material-check/<int:pk3>/update', RawMaterialCheckView.as_view(), name="raw-check-update"),
+
+    path('batches/<int:pk>/<int:pk2>/process-control/', process_control, name="process-control"),
+    # path('batches/<int:pk>/<int:pk2>/raw-material-check/<int:pk3>/delete', RMCheckDelete.as_view(), name="raw-check-delete"),
+    path('batches/<int:pk>/<int:pk2>/process-control/<int:pk3>/update', process_control, name="process-control-update"),
 ]

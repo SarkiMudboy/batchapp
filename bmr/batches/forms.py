@@ -156,3 +156,46 @@ class ProcessForm(ModelForm):
             instance.save()
 
         return instance
+
+class RawMaterialCheckForm(ModelForm):
+
+    check_done_by = forms.ModelMultipleChoiceField(required=False, queryset=Staff.objects.all(), widget=forms.CheckboxSelectMultiple)
+    
+    class Meta:
+        model = RawMaterialCheckRecord
+        exclude = ['batch']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['date_tested'].widget=forms.DateInput(format=('%Y-%m-%d'),
+            attrs={'class': 'form-control', 
+            'placeholder': 'Select a date',
+            'type': 'date' })
+
+    def save(self, commit=True):
+        instance = super(RawMaterialCheckForm, self).save(commit=False)
+
+        instance._callSignal = True
+        instance._form = self
+
+        instance.save()
+
+        # updates fields in other model instances from the db
+        update_fields(instance, RawMaterialCheckRecord, ['assessment', 'total_assessment'], includes_m2m=True)
+
+        return instance
+
+class InProcessControlForm(ModelForm):
+    class Meta:
+        model = ControlRecords
+        exclude = ['batch']
+
+class IndividualWeightForm(ModelForm):
+    class Meta:
+        model = IndividualWeight
+        exclude = ['batch']
+
+class CleaningProcessForm(ModelForm):
+    class Meta:
+        model = CleaningProcess
+        exclude = ['batch']

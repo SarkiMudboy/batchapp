@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block title %}
+Confirm delete
+{% endblock title %}
+
+{% block content %}
+<form method="post">
+    {% csrf_token %}
+    <p>Are you sure you want to delete "{{ guide }}"?</p>
+    <input type="submit" value="Confirm">
+</form>
+<a href="{{ request.META.HTTP_REFERER }}" class=" mt-3 btn btn-primary" class>Back</a>
+{% endblock content %}

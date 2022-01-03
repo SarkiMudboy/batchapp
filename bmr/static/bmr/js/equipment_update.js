@@ -28,7 +28,6 @@ $(function () {
           dataType: 'json',
           success: function (data) {
             if (data.form_is_valid) {
-              console.log(data)
               $("#equipments").html(data.html_equipment_list);
               var message = data['messages'][0]
               if (!data.delete) {

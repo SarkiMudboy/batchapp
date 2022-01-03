@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block title %}
+	{{ batch }} Process Control
+{% endblock %}
+
+
+{% block content %}
+
+{% if control_records %}
+
+	<table class="table table-hover">
+	  <thead>
+	    <tr>
+	      <th scope="col">#</th>
+	      <th scope="col">Date</th>
+	      <th scope="col">area/state/steps</th>
+	      <th scope="col">Specifications</th>
+	      <th scope="col">Findings/results</th>
+	      <th scope="col">Remarks</th>
+	    </tr>
+	  </thead>
+	  <tbody id="control-list">
+	  	{% for record in control_records %}
+		    <tr class="rec-list" data-form-url="{% url 'batches:process-control-update' pk=product.pk pk2=batch.pk pk3=record.pk %}">
+		      <th scope="row">1</th>
+		      <td>{{ record.created|date:"Y-m-d" }}</td>
+		      <td>{{ record.test.test.name }}</td>
+		      <td>{{ record.test.specification }}</td>
+	  	     <td>{{ record.result }}</td>
+		      <td>{{ record.remarks }}</td>
+		    </tr>
+	    {% endfor %}
+	  </tbody>
+	</table>
+{% else %}
+	<h3 class="mt-4">Add a control process</h3>
+{% endif %}
+
+<!-- Button trigger modal -->
+<button type="button" class="mt-3 btn btn-outline-success col-md-6 mx-auto" data-bs-toggle="modal" data-bs-target="#controlModal">
+    Add
+</button>
+
+<a class="mt-2 btn btn-outline-success" data-bs-toggle="offcanvas" href="#offcanvasExample" role="button" aria-controls="offcanvasExample">
+  Pages
+</a>
+	
+	{% include "batch/sidebar.html" %}
+  {% include 'modal.html' with form=in_process_form %}
+  {% include "modals.html" %}
+    
+
+    <script type="text/javascript" src="{% static 'bmr/js/in_process.js' %}"></script>
+
+{% endblock %}

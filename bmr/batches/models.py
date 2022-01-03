@@ -92,18 +92,23 @@ class QualityControlAnalysis(models.Model):
 class ControlRecords(models.Model):
 
     batch = models.ForeignKey(Batch, on_delete=models.CASCADE)
-    test = models.CharField(max_length=50)
+    test = models.ForeignKey(Specification, related_name='%(class)s_spec', blank=True, null=True, on_delete=models.CASCADE)
     result = models.FloatField(blank=True, null=True)
     remarks = models.CharField(max_length=10, blank=True, null=True)
+    approved_by = models.ManyToManyField(Staff, related_name='%(class)s_approved_by', blank=True, null=True)
+    checked_by = models.ManyToManyField(Staff, related_name='%(class)s_checked_by', blank=True, null=True)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return self.test + self.batch + ' control record'
+        return self.test.test.name + self.batch.batch_number + ' control record'
 
-class IndividualWieght(models.Model):
+class IndividualWeight(models.Model):
+
     batch = models.ForeignKey(Batch, on_delete=models.CASCADE)
     weight = models.CharField(validators=[validate_comma_separated_integer_list], max_length=200, blank=True, null=True)
+    approved_by = models.ManyToManyField(Staff, related_name='%(class)s_approved_by', blank=True, null=True)
+    checked_by = models.ManyToManyField(Staff, related_name='%(class)s_checked_by', blank=True, null=True)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
@@ -112,25 +117,18 @@ class IndividualWieght(models.Model):
 
 
 class CleaningProcess(models.Model):
+    
     batch = models.ForeignKey(Batch, on_delete=models.CASCADE)
     process_description = models.TextField(max_length=1000)
     action_by = models.ForeignKey(Staff, blank=True, null=True, related_name='%(class)s_action_by', on_delete=models.CASCADE)
     checked_by = models.ForeignKey(Staff, blank=True, null=True, related_name='%(class)s_checked_by', on_delete=models.CASCADE)
+    approved_by = models.ManyToManyField(Staff, related_name='%(class)s_approved_by', blank=True, null=True)
+    checked_by = models.ManyToManyField(Staff, related_name='%(class)s_auth_checked_by', blank=True, null=True) 
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.process_description[:10] + self.batch + ' cleaning process'
-
-class InprocessAuth(models.Model):
-    batch = models.OneToOneField(Batch, on_delete=models.CASCADE)
-    action_by = models.ManyToManyField(Staff, related_name='%(class)s_action_by', blank=True, null=True)
-    checked_by = models.ManyToManyField(Staff, related_name='%(class)s_checked_by', blank=True, null=True)
-    created = models.DateTimeField(auto_now_add=True)
-    updated = models.DateTimeField(auto_now=True)
-
-    def __str__(self):
-        return self.batch + ' in process authentication'
 
 # Raw Materials
 
@@ -141,22 +139,14 @@ class RawMaterialCheckRecord(models.Model):
     checked_by = models.ForeignKey(Staff, related_name='%(class)s_checked_by', blank=True, null=True, on_delete=models.CASCADE)
     date_tested = models.DateField(null=True, blank=True)
     result = models.CharField(max_length=50, blank=True, null=True)
-    created = models.DateTimeField(auto_now_add=True)
-    updated = models.DateTimeField(auto_now=True)
-
-    def __str__(self):
-        return self.raw_material + self.batch + ' check record'
-
-class RawMaterialCheckRecordAuth(models.Model):
-    batch = models.OneToOneField(Batch, on_delete=models.CASCADE)
     check_done_by = models.ManyToManyField(Staff, blank=True, null=True)
-    assignment = models.ForeignKey(Staff, related_name='%(class)s_assignment', blank=True, null=True, on_delete=models.CASCADE)
-    total_assignment = models.ForeignKey(Staff, related_name='%(class)s_total_assignment', blank=True, null=True, on_delete=models.CASCADE)
+    assessment = models.ForeignKey(Staff, related_name='%(class)s_assignment', blank=True, null=True, on_delete=models.CASCADE)
+    total_assessment = models.ForeignKey(Staff, related_name='%(class)s_total_assignment', blank=True, null=True, on_delete=models.CASCADE)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return self.batch + ' check record authentication'
+        return self.raw_material.raw_material.name + self.batch.batch_number + ' check record'
 
 class RawMaterialPackagingBill(models.Model):
     batch = models.ForeignKey(Batch, on_delete=models.CASCADE)
