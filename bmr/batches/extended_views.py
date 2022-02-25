@@ -3,7 +3,7 @@ from django.urls import reverse_lazy
 from django.shortcuts import get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponseRedirect
 from django.forms.models import model_to_dict
 from django.template.loader import render_to_string
 from django.contrib.messages.views import SuccessMessageMixin
@@ -239,11 +239,15 @@ class RMCheckDelete(DeleteView):
 def process_control(request, pk, pk2, pk3=None):
 
 	control_records = ControlRecords.objects.filter(batch=get_object_or_404(Batch, pk=pk2))
-	individual_weight = IndividualWeight.objects.filter(batch=get_object_or_404(Batch, pk=pk2))
 	cleaning_processes = CleaningProcess.objects.filter(batch=get_object_or_404(Batch, pk=pk2))
 
+	try:
+		individual_weight = IndividualWeight.objects.get(batch=get_object_or_404(Batch, pk=pk2))
+		individual_weight_form = IndividualWeightForm(instance=individual_weight)
+	except:
+		individual_weight_form = IndividualWeightForm
+
 	inprocess_control_form = InProcessControlForm
-	individual_weight_form = IndividualWeightForm
 	cleaning_form = CleaningProcessForm
 
 	context = {
@@ -253,8 +257,7 @@ def process_control(request, pk, pk2, pk3=None):
 		'records': request.session['batch_records'],
 
 		'control_records': control_records,
-		'individual_weight': individual_weight,
-		'cleaning_processes': cleaning_processes,
+		'clean': cleaning_processes,
 
 		'in_process_form': inprocess_control_form,
 		'weight_form': individual_weight_form,
@@ -275,17 +278,14 @@ def process_control(request, pk, pk2, pk3=None):
 			data['messages'] = {'message': 'record updated successfully', 'type': 'success'}
 			control_records = ControlRecords.objects.filter(batch=get_object_or_404(Batch, pk=pk2))
 
-			context_dict = {
-			'control_records': control_records,
-			'batch': get_object_or_404(Batch, pk=pk2),
-			'product': get_object_or_404(Product, pk=pk),
-			}
+			context_dict = context.copy()
+			context_dict['control_records'] = control_records
 
 			data['html_control_list'] = render_to_string('batch/process_control.html', context_dict, request=request)
 		else:
 			data['form_is_valid'] = False
 
-		return JsonResponse({'data': data})
+		return JsonResponse(data)
 
 	if request.is_ajax() and request.method == 'POST':
 
@@ -324,3 +324,139 @@ def process_control(request, pk, pk2, pk3=None):
 		return JsonResponse({'form': render_to_string('helpers/control_update.html', context_dict, request=request)})
 	
 	return render(request, 'batch/process_control.html', context)
+
+def control_delete(request, pk, pk2, pk3=None):
+
+	data = dict()
+	obj=None
+
+	if pk3:
+		obj = get_object_or_404(ControlRecords, pk=pk3)
+
+	context = {
+		'batch': get_object_or_404(Batch, pk=pk2),
+		'product': get_object_or_404(Product, pk=pk),
+		'record': obj,
+	}
+
+	if request.method == "POST":
+		
+		obj.delete()
+		return HttpResponseRedirect(reverse_lazy('batches:process-control', kwargs={'pk': pk, 'pk2': pk2}))
+
+	return render(request, 'batch/process_control_delete.html', context)
+
+def individual_weight(request, pk, pk2):
+
+	if request.is_ajax() and request.method == "POST":
+		data = dict()
+		form = IndividualWeightForm(request.POST)
+		if form.is_valid():
+			form.instance.batch = get_object_or_404(Batch, pk=pk2)
+			try:
+				form.save()
+			except Exception as e:
+				data['error']: str(e)
+			data['success'] = "Weight saved!"
+
+	return JsonResponse(data)
+
+def cleaning(request, pk, pk2, pk3=None):
+
+	try:
+		individual_weight = IndividualWeight.objects.get(batch=get_object_or_404(Batch, pk=pk2))
+		individual_weight_form = IndividualWeightForm(instance=individual_weight)
+	except:
+		individual_weight_form = IndividualWeightForm
+
+	inprocess_control_form = InProcessControlForm
+	cleaning_form = CleaningProcessForm
+
+	context = {
+
+		'batch': get_object_or_404(Batch, pk=pk2),
+		'product': get_object_or_404(Product, pk=pk),
+		'records': request.session['batch_records'],
+		'control_records': ControlRecords.objects.filter(batch=get_object_or_404(Batch, pk=pk2)),
+
+		'in_process_form': inprocess_control_form,
+		'weight_form': individual_weight_form,
+		'cleaning_form': cleaning_form,
+	}
+
+	if request.is_ajax() and request.method == "POST" and pk3:
+		form = CleaningProcessForm(request.POST)
+		data = dict()
+		cleaning_process = CleaningProcess.objects.get(pk=pk3)
+
+		if form.is_valid():
+
+			form = CleaningProcessForm(request.POST, instance=cleaning_process)
+			form.save()
+			data['form_is_valid'] = True
+			data['messages'] = {'message': 'process updated successfully', 'type': 'success'}
+			processes = CleaningProcess.objects.filter(batch=get_object_or_404(Batch, pk=pk2))
+
+			context_dict = context.copy()
+			context_dict['clean'] = processes
+
+			data['html_cleaning_list'] = render_to_string('batch/process_control.html', context_dict, request=request)
+		else:
+			data['form_is_valid'] = False
+
+		return JsonResponse(data)
+
+	if request.is_ajax() and request.method == "POST":
+
+		data = dict()
+		form = CleaningProcessForm(request.POST)
+
+		if form.is_valid():
+			form.instance.batch = get_object_or_404(Batch, pk=pk2)
+			try:
+				form.save()
+			except Exception as e:
+				data['error']: str(e)
+			data['success'] = "Cleaning saved!"
+
+			saved_instance = CleaningProcess.objects.last()
+
+			serialized_instance = serializers.serialize('json', [saved_instance,])
+
+			data['instance'] = serialized_instance
+
+			data['batch_data'] = {'batch_pk': pk2, "product_pk": pk, "clean_pk": saved_instance.pk}
+
+		return JsonResponse(data)
+
+	if request.is_ajax() and request.method == "GET":
+
+		cleaning_process = CleaningProcess.objects.get(pk=pk3)
+		form = CleaningProcessForm(instance=cleaning_process)
+		context['process'] = cleaning_process
+		context['form'] = form
+
+		return JsonResponse({'form': render_to_string('helpers/cleaning_update.html', context, request=request)})
+	
+
+def cleaning_delete(request, pk, pk2, pk3=None):
+
+	data = dict()
+	obj=None
+
+	if pk3:
+		obj = get_object_or_404(CleaningProcess, pk=pk3)
+
+	context = {
+		'batch': get_object_or_404(Batch, pk=pk2),
+		'product': get_object_or_404(Product, pk=pk),
+		'process': obj,
+	}
+
+	if request.method == "POST":
+		
+		obj.delete()
+		return HttpResponseRedirect(reverse_lazy('batches:process-control', kwargs={'pk': pk, 'pk2': pk2}))
+
+	return render(request, 'batch/cleaning_delete.html', context)
+

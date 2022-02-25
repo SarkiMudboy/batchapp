@@ -9,47 +9,90 @@
 
 {% block content %}
 
-{% if control_records %}
+<div class="container">
+	<div class="row">
 
-	<table class="table table-hover">
-	  <thead>
-	    <tr>
-	      <th scope="col">#</th>
-	      <th scope="col">Date</th>
-	      <th scope="col">area/state/steps</th>
-	      <th scope="col">Specifications</th>
-	      <th scope="col">Findings/results</th>
-	      <th scope="col">Remarks</th>
-	    </tr>
-	  </thead>
-	  <tbody id="control-list">
-	  	{% for record in control_records %}
-		    <tr class="rec-list" data-form-url="{% url 'batches:process-control-update' pk=product.pk pk2=batch.pk pk3=record.pk %}">
-		      <th scope="row">1</th>
-		      <td>{{ record.created|date:"Y-m-d" }}</td>
-		      <td>{{ record.test.test.name }}</td>
-		      <td>{{ record.test.specification }}</td>
-	  	     <td>{{ record.result }}</td>
-		      <td>{{ record.remarks }}</td>
-		    </tr>
-	    {% endfor %}
-	  </tbody>
-	</table>
-{% else %}
-	<h3 class="mt-4">Add a control process</h3>
-{% endif %}
+		<h3 class="mt-3 text-center">In Process Control records</h3>
 
-<!-- Button trigger modal -->
-<button type="button" class="mt-3 btn btn-outline-success col-md-6 mx-auto" data-bs-toggle="modal" data-bs-target="#controlModal">
-    Add
-</button>
+		{% if control_records %}
 
-<a class="mt-2 btn btn-outline-success" data-bs-toggle="offcanvas" href="#offcanvasExample" role="button" aria-controls="offcanvasExample">
-  Pages
-</a>
+			<table class="table table-hover">
+			  <thead>
+			    <tr>
+			      <th scope="col">#</th>
+			      <th scope="col">Date</th>
+			      <th scope="col">area/state/steps</th>
+			      <th scope="col">Specifications</th>
+			      <th scope="col">Findings/results</th>
+			      <th scope="col">Remarks</th>
+			    </tr>
+			  </thead>
+			  <tbody id="control-list">
+			  	{% for record in control_records %}
+				    <tr class="rec-list" data-form-url="{% url 'batches:process-control-update' pk=product.pk pk2=batch.pk pk3=record.pk %}">
+				      <th scope="row" class="counter">{{ forloop.counter }}</th>
+				      <td>{{ record.created|date:"Y-m-d" }}</td>
+				      <td>{{ record.test.test.name }}</td>
+				      <td>{{ record.test.specification }}</td>
+			  	     <td>{{ record.result }}</td>
+				      <td>{{ record.remarks }}</td> 
+				    </tr>
+			    {% endfor %}
+			  </tbody>
+			</table>
+		{% else %}
+			<h3 class="mt-4">Add a control process</h3>
+		{% endif %}
+
+		<!-- Button trigger modal -->
+		<button type="button" class="mt-3 btn btn-outline-success col-md-3 mx-auto" data-bs-toggle="modal" data-bs-target="#controlModal">
+		    Add
+		</button>
+
+		<form action="{% url 'batches:individual-weight' pk=product.pk pk2=batch.pk %}" method="POST" class="mt-3 row justify-content-center" id="weight-form">
+			{% csrf_token %}
+			{{ weight_form|crispy }}
+			<button class="mt-3 btn btn-outline-success col-md-3">Add weight</button>
+		</form>
+
+		{% if clean %}
+
+			<table class="table table-hover">
+			  <thead>
+			    <tr>
+			      <th scope="col">s/n</th>
+			      <th scope="col">Processes</th>
+			      <th scope="col">Action by</th>
+			      <th scope="col">Checked by</th>
+			    </tr>
+			  </thead>
+			  <tbody id="clean-list">
+			  	{% for cleaning in clean %}
+				    <tr class="cln-list" data-form-url="{% url 'batches:cleaning-update' pk=product.pk pk2=batch.pk pk3=cleaning.pk %}">
+				      <th scope="row" class="counter-clean">{{ forloop.counter }}</th>
+				      <td>{{ cleaning.process_description }}</td>
+				      <td>{{ cleaning.action_by }}</td>
+				      <td>{{ cleaning.process_checked_by }}</td> 
+				    </tr>
+			    {% endfor %}
+			  </tbody>
+			</table>
+		{% else %}
+			<h3 class="mt-4">Add a cleaning process</h3>
+		{% endif %}
+
+		<button class="mt-3 mb-4 btn btn-outline-success col-md-3 mx-auto" data-bs-toggle="modal"
+			data-bs-target="#cleanModal">Add</button>
+			<hr>
+		<a class="mt-2 btn btn-outline-success col-md-6 mx-auto" data-bs-toggle="offcanvas" href="#offcanvasExample" role="button" aria-controls="offcanvasExample">
+		  Pages
+		</a>
+	</div>
+</div>
 	
 	{% include "batch/sidebar.html" %}
   {% include 'modal.html' with form=in_process_form %}
+  {% include 'clean_modal.html' %}
   {% include "modals.html" %}
     
 

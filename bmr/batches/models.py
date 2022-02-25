@@ -51,32 +51,27 @@ class BatchInfoAuth(models.Model):
 
 # Quality Control (Chemical and Microbiological)
 
-class TestResult(models.Model):
+class QualityControlAnalysis(models.Model):
 
     RESULT_TYPE = [
         ('CHM', 'CHEMICAL'),
         ('MCR', 'MICRO')
     ]
+    RESULT_PHARM = [
+        ('BP', 'BP'),
+        ('USP', 'USP')
+    ]
+
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     batch = models.ForeignKey(Batch, on_delete=models.CASCADE)
-    test = models.ForeignKey(Test, on_delete=models.CASCADE)
-    result = models.IntegerField(blank=True, null=True)
-    id_complies = models.BooleanField(blank=True, null=True)
-    result_type = models.CharField(max_length=20, choices=RESULT_TYPE)
-    created = models.DateTimeField(auto_now_add=True)
-    updated = models.DateTimeField(auto_now=True)
-
-    def __str__(self):
-        return self.test + self.batch + ' test result' 
-
-class QualityControlAnalysis(models.Model):
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
-    batch = models.ForeignKey(Batch, on_delete=models.CASCADE)
-    ar_number = models.CharField(max_length=50)
+    ar_number = models.CharField(max_length=50, blank=True, null=True)
 
     # results
-    results = models.ManyToManyField(TestResult, blank=True, null=True)
-    result_pharmacopiea = models.ForeignKey(Specification, blank=True, null=True, on_delete=models.CASCADE)
+    test = models.ForeignKey(Test, on_delete=models.CASCADE, blank=True, null=True)
+    result = models.CharField(max_length=50, blank=True, null=True)
+    result_specification = models.CharField(max_length=50, blank=True, null=True)
+    result_type = models.CharField(max_length=20, choices=RESULT_TYPE, blank=True, null=True)
+    result_pharmacopiea = models.CharField(max_length=10, choices=RESULT_PHARM, blank=True, null=True)
     pharmacopiea_specification_year = models.DateField(blank=True, null=True)
 
     # auth 
@@ -85,7 +80,7 @@ class QualityControlAnalysis(models.Model):
     quality_control_manager = models.ForeignKey(Staff, related_name='%(class)s_QC_manager', blank=True, null=True, on_delete=models.CASCADE) # check back later for correction
 
     def __str__(self):
-        return self.batch + ' quality control analysis'
+        return self.batch.batch_number + self.test.name + ' quality control analysis'
 
 # Quality Control In Process
 
@@ -113,7 +108,7 @@ class IndividualWeight(models.Model):
     updated = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return self.batch + self.position + "'s weight"
+        return self.batch.batch_number + "'s weight"
 
 
 class CleaningProcess(models.Model):
@@ -121,14 +116,14 @@ class CleaningProcess(models.Model):
     batch = models.ForeignKey(Batch, on_delete=models.CASCADE)
     process_description = models.TextField(max_length=1000)
     action_by = models.ForeignKey(Staff, blank=True, null=True, related_name='%(class)s_action_by', on_delete=models.CASCADE)
-    checked_by = models.ForeignKey(Staff, blank=True, null=True, related_name='%(class)s_checked_by', on_delete=models.CASCADE)
+    process_checked_by = models.ForeignKey(Staff, blank=True, null=True, related_name='%(class)s_checked_by', on_delete=models.CASCADE)
     approved_by = models.ManyToManyField(Staff, related_name='%(class)s_approved_by', blank=True, null=True)
     checked_by = models.ManyToManyField(Staff, related_name='%(class)s_auth_checked_by', blank=True, null=True) 
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return self.process_description[:10] + self.batch + ' cleaning process'
+        return self.process_description[:10] + self.batch.batch_number + ' cleaning process'
 
 # Raw Materials
 

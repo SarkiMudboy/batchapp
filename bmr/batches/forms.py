@@ -149,7 +149,7 @@ class ProcessForm(ModelForm):
         instance = super(ProcessForm, self).save(commit=False)
         instance.save()
 
-        # updates many to many fields in other model instances from the db
+        # updates other fields in other model instances from the db
         update_fields(instance, BatchManufacturingProcess, ['manufacturing_commenced', 'manufacturing_completed', 'production_manager'])
 
         if commit:
@@ -190,12 +190,68 @@ class InProcessControlForm(ModelForm):
         model = ControlRecords
         exclude = ['batch']
 
+    def save(self, commit=True):
+        instance = super(InProcessControlForm, self).save(commit=False)
+
+        instance._callSignal = True
+        instance._form = self
+
+        instance.save()
+
+        return instance
+
 class IndividualWeightForm(ModelForm):
     class Meta:
         model = IndividualWeight
-        exclude = ['batch']
+        exclude = ['batch', 'approved_by', 'checked_by']
+
+    def save(self, commit=True):
+        instance = super(IndividualWeightForm, self).save(commit=False)
+
+        instance._callSignal = True
+        instance._form = self
+
+        instance.save()
+
+        return instance
 
 class CleaningProcessForm(ModelForm):
     class Meta:
         model = CleaningProcess
-        exclude = ['batch']
+        exclude = ['batch', 'approved_by', 'checked_by']
+
+    def save(self, commit=True):
+        instance = super(CleaningProcessForm, self).save(commit=False)
+
+        instance._callSignal = True
+        instance._form = self
+
+        instance.save()
+
+        return instance
+
+class QCForm(ModelForm):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['pharmacopiea_specification_year'].widget=forms.DateInput(format=('%Y-%m-%d'),
+            attrs={'class': 'form-control', 
+            'placeholder': 'Select a date',
+            'type': 'date' })
+
+    class Meta:
+        model = QualityControlAnalysis
+        exclude = ['batch', 'product', 'result_specification']
+
+    def save(self, commit=True):
+        instance = super(QCForm, self).save(commit=False)
+
+        instance._callSignal = True
+        instance._form = self
+
+        instance.save()
+
+        update_fields(instance, model, 'result_pharmacopiea', 'pharmacopiea_specification_year', 'chemical_analyst',
+            'microbiologist', 'quality_control_manager')
+
+        return instance

@@ -5,7 +5,10 @@ from .views import (BatchProductListView, BatchListView, BatchCreateView,
     EquipmentClearanceView, EQClearanceDelete,
     )
 from .extended_views import (MasterFormulaView, BillofRawMaterialView, RMBillDelete, BatchManufacturingView, 
-    ProcessDelete, RawMaterialCheckView, RMCheckDelete, process_control)
+    ProcessDelete, RawMaterialCheckView, RMCheckDelete, process_control, control_delete, individual_weight, 
+    cleaning, cleaning_delete)
+
+from .final_views import QCView, QCDelete
 
 app_name = 'batches'
 
@@ -48,6 +51,17 @@ urlpatterns = [
     path('batches/<int:pk>/<int:pk2>/raw-material-check/<int:pk3>/update', RawMaterialCheckView.as_view(), name="raw-check-update"),
 
     path('batches/<int:pk>/<int:pk2>/process-control/', process_control, name="process-control"),
-    # path('batches/<int:pk>/<int:pk2>/raw-material-check/<int:pk3>/delete', RMCheckDelete.as_view(), name="raw-check-delete"),
+    path('batches/<int:pk>/<int:pk2>/process-control/<int:pk3>/delete', control_delete, name="process-delete"),
     path('batches/<int:pk>/<int:pk2>/process-control/<int:pk3>/update', process_control, name="process-control-update"),
+
+    path('batches/<int:pk>/<int:pk2>/individual-weight/', individual_weight, name="individual-weight"),
+
+    path('batches/<int:pk>/<int:pk2>/cleaning-process/', cleaning, name="cleaning-process"),
+    path('batches/<int:pk>/<int:pk2>/cleaning-process/<int:pk3>/update', cleaning, name="cleaning-update"),
+    path('batches/<int:pk>/<int:pk2>/cleaning-process/<int:pk3>/delete', cleaning_delete, name="cleaning-delete"),
+
+    path('batches/<int:pk>/<int:pk2>/qc-analysis-report/', QCView.as_view(), name="qc-analysis-report"),
+    path('batches/<int:pk>/<int:pk2>/qc-analysis-report/<int:pk3>/update', QCView.as_view(), name="qc-update"),
+    path('batches/<int:pk>/<int:pk2>/qc-analysis-report/<int:pk3>/delete', QCDelete.as_view(), name="qc-delete"),
+
 ]

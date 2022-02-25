@@ -2,10 +2,9 @@ from django.contrib import admin
 from .models import (
     Batch,
     BatchInfoAuth,
-    TestResult,
     QualityControlAnalysis,
     ControlRecords,
-    # IndividualWeight,
+    IndividualWeight,
     CleaningProcess,
     RawMaterialCheckRecord,
     RawMaterialPackagingBill,
@@ -26,10 +25,9 @@ from .models import (
 
 admin.site.register(Batch)
 admin.site.register(BatchInfoAuth)
-admin.site.register(TestResult)
 admin.site.register(QualityControlAnalysis)
 admin.site.register(ControlRecords)
-# admin.site.register(IndividualWeight)
+admin.site.register(IndividualWeight)
 admin.site.register(CleaningProcess)
 admin.site.register(RawMaterialCheckRecord)
 admin.site.register(RawMaterialPackagingBill)

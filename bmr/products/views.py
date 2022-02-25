@@ -218,7 +218,7 @@ def create_raw_material(request):
     context = {
         'form' : form
     }
-    return render(request , 'raw_materials/raw_material_create_form.html', context)
+    return render(request, 'raw_materials/raw_material_create_form.html', context)
 
 class RawmaterialDetailView(DetailView):
     template_name = 'raw_materials/rawmaterial_detail.html'
