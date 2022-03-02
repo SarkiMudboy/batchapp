@@ -72,7 +72,7 @@ class QualityControlAnalysis(models.Model):
     result_specification = models.CharField(max_length=50, blank=True, null=True)
     result_type = models.CharField(max_length=20, choices=RESULT_TYPE, blank=True, null=True)
     result_pharmacopiea = models.CharField(max_length=10, choices=RESULT_PHARM, blank=True, null=True)
-    pharmacopiea_specification_year = models.DateField(blank=True, null=True)
+    pharmacopiea_specification_year = models.CharField(max_length=5, blank=True, null=True)
 
     # auth 
     chemical_analyst = models.ForeignKey(Staff, related_name='%(class)s_chemical_analyst', blank=True, null=True, on_delete=models.CASCADE)

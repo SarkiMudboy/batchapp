@@ -1,6 +1,7 @@
 from django.forms import ModelForm
 from django import forms
 from bmr.mixins import update_fields
+import datetime
 from .models import *
 
 
@@ -234,10 +235,9 @@ class QCForm(ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['pharmacopiea_specification_year'].widget=forms.DateInput(format=('%Y-%m-%d'),
-            attrs={'class': 'form-control', 
-            'placeholder': 'Select a date',
-            'type': 'date' })
+        self.year = datetime.datetime.now().year
+        self.CHOICES = ((1998+y, str(1998+y)) for y in range(self.year-1999))
+        self.fields['pharmacopiea_specification_year']=forms.ChoiceField(choices=self.CHOICES, widget=forms.Select())
 
     class Meta:
         model = QualityControlAnalysis
@@ -246,12 +246,12 @@ class QCForm(ModelForm):
     def save(self, commit=True):
         instance = super(QCForm, self).save(commit=False)
 
-        instance._callSignal = True
+        instance._callSignal = False
         instance._form = self
 
         instance.save()
 
-        update_fields(instance, model, 'result_pharmacopiea', 'pharmacopiea_specification_year', 'chemical_analyst',
-            'microbiologist', 'quality_control_manager')
+        update_fields(instance, QualityControlAnalysis, ['ar_number', 'result_pharmacopiea', 'pharmacopiea_specification_year', 'chemical_analyst',
+            'microbiologist', 'quality_control_manager'])
 
         return instance

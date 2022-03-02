@@ -8,7 +8,7 @@ from .extended_views import (MasterFormulaView, BillofRawMaterialView, RMBillDel
     ProcessDelete, RawMaterialCheckView, RMCheckDelete, process_control, control_delete, individual_weight, 
     cleaning, cleaning_delete)
 
-from .final_views import QCView, QCDelete
+from .final_views import QCView, QCDelete, QCCreateView, QCUpdate
 
 app_name = 'batches'
 
@@ -61,7 +61,8 @@ urlpatterns = [
     path('batches/<int:pk>/<int:pk2>/cleaning-process/<int:pk3>/delete', cleaning_delete, name="cleaning-delete"),
 
     path('batches/<int:pk>/<int:pk2>/qc-analysis-report/', QCView.as_view(), name="qc-analysis-report"),
-    path('batches/<int:pk>/<int:pk2>/qc-analysis-report/<int:pk3>/update', QCView.as_view(), name="qc-update"),
+    path('batches/<int:pk>/<int:pk2>/qc-analysis-report/<int:pk3>/update', QCUpdate.as_view(), name="qc-update"),
+    path('batches/<int:pk>/<int:pk2>/qc-analysis-report/create', QCCreateView.as_view(), name="qc-create"),
     path('batches/<int:pk>/<int:pk2>/qc-analysis-report/<int:pk3>/delete', QCDelete.as_view(), name="qc-delete"),
 
 ]
