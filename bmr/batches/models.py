@@ -243,7 +243,7 @@ class BillOfPackaging(models.Model):
     updated = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return self.batch + self.material + "packaging bill"
+        return self.batch.batch_number + str(self.material) + "packaging bill"
 
 class BatchPackagingProcess(models.Model):
     batch = models.ForeignKey(Batch, on_delete=models.CASCADE)
@@ -257,7 +257,7 @@ class BatchPackagingProcess(models.Model):
         return self.batch + "packaging process"
 
 class BatchPackagingAuth(models.Model):
-    batch = models.ForeignKey(Batch, on_delete=models.CASCADE)
+    batch = models.ForeignKey(Batch, unique=True, on_delete=models.CASCADE)
     confirmed_by = models.ManyToManyField(Staff)
     approved_by = models.ForeignKey(Staff, related_name='%(class)s_approved_by', blank=True, null=True, on_delete=models.CASCADE)
     created = models.DateTimeField(auto_now_add=True)

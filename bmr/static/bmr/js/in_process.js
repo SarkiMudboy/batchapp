@@ -178,7 +178,7 @@
         })
     })
 
-    $("#modal-clean").on("submit", ".update-cleaning-js", function(e){
+    $("#modal-clean").on("submit", "update-cleaning-js", function(e){
         e.preventDefault();
         var form = $(this)
         $.ajax({

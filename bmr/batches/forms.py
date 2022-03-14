@@ -255,3 +255,15 @@ class QCForm(ModelForm):
             'microbiologist', 'quality_control_manager'])
 
         return instance
+
+
+class PackagingCreateForm(ModelForm):
+    
+    class Meta:
+        model = BillOfPackaging
+        exclude = ['batch']
+
+class PackagingProcessForm(ModelForm):
+    class Meta:
+        model = BatchPackagingProcess
+        exclude = ['batch']

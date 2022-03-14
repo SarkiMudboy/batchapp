@@ -2,6 +2,7 @@ from django.core import serializers
 from django.http import JsonResponse, HttpResponse
 from rawmaterials.models import RawMaterialBatch, Rawmaterial
 from products.models import RawMaterial
+from django.db.models import ForeignKey
 import json
 
 class AjaxFormMixin(object):
@@ -15,7 +16,6 @@ class AjaxFormMixin(object):
     def form_valid(self, form):
         response = super(AjaxFormMixin, self).form_valid(form)
         if self.request.is_ajax():
-            print(form.cleaned_data)
             data = {
                 'message': "Successfully submitted form data."
             }
@@ -55,3 +55,10 @@ def autocompleteModel(request):
 		results.append(query_result.name.raw_material.name + " " + str(query_result.standard_quantity)) 
 	resp = request.GET['callback'] + '(' + json.dumps(results) + ');'
 	return HttpResponse(resp, 'application/json')
+
+def serialize_model(model):
+	instance = {}
+	for field in model._meta.fields:
+		value = field.value_from_object(model)
+		instance[field.attname] = value
+	return instance

@@ -8,7 +8,9 @@ from .extended_views import (MasterFormulaView, BillofRawMaterialView, RMBillDel
     ProcessDelete, RawMaterialCheckView, RMCheckDelete, process_control, control_delete, individual_weight, 
     cleaning, cleaning_delete)
 
-from .final_views import QCView, QCDelete, QCCreateView, QCUpdate
+from .final_views import (
+    QCView, QCDelete, QCCreateView, QCUpdate, PackagingBillCreateView, PackagingBillView, 
+    PackagingProcessView, PackagingBillUpdate, PackagingBillDelete)
 
 app_name = 'batches'
 
@@ -65,4 +67,10 @@ urlpatterns = [
     path('batches/<int:pk>/<int:pk2>/qc-analysis-report/create', QCCreateView.as_view(), name="qc-create"),
     path('batches/<int:pk>/<int:pk2>/qc-analysis-report/<int:pk3>/delete', QCDelete.as_view(), name="qc-delete"),
 
+    path('batches/<int:pk>/<int:pk2>/packaging-bill/', PackagingBillView.as_view(), name="bill-of-packaging"),
+    path('batches/<int:pk>/<int:pk2>/packaging-bill/<int:pk3>/update', PackagingBillUpdate.as_view(), name="pack-bill-update"),
+    path('batches/<int:pk>/<int:pk2>/packaging-bill/create', PackagingBillCreateView.as_view(), name="pack-bill-create"),
+    path('batches/<int:pk>/<int:pk2>/packaging-bill/<int:pk3>/delete', PackagingBillDelete.as_view(), name="pack-bill-delete"),
+    path('batches/<int:pk>/<int:pk2>/packaging-bill/process/create', PackagingProcessView.as_view(), name="pack-process-create"),
+    path('batches/<int:pk>/<int:pk2>/packaging-bill/process/create', PackagingProcessView.as_view(), name="pack-process-update"),
 ]
