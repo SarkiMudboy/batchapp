@@ -45,4 +45,52 @@
             }
         })
     })
+
+    $('#create-process-button').on('click', function(event){
+        event.preventDefault();
+        $.ajax({
+            method:"GET",
+            dataType: "html",
+            url: $('#create-process-button').attr("href"),
+            success: function (data) {
+                $(".package-process-form").html(data)
+            }
+        })
+    })
+
+
+    $("body").on("click", ".pack-processes", function(e){
+        console.log('clicked!')
+        e.preventDefault()
+        var btn = $(this)
+        $.ajax({
+            url: btn.attr("data-form-url"),
+            type: 'GET',
+            dataType: 'json',
+            success: function (data) {
+              $("#modal-packaging-process").modal("show");
+              $("#modal-packaging-process .modal-content").html(data.form);  
+            }
+        })
+    })
+
+    $("#modal-packaging-process").on("submit", ".update-process-js", function(e){
+        e.preventDefault();
+        var form = $(this)
+        $.ajax({
+            url: form.attr("action"),
+            type:"POST",
+            data: form.serialize(),
+            dataType: "json",
+            success: function (data) {
+                if (data.form_is_valid){
+                    console.log("done")
+                    $('body').html(data.process_template);
+                }
+                else{
+                    console.log('error')
+                };
+            }
+        })
+    })
 }

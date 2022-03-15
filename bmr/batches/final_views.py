@@ -186,56 +186,52 @@ class PackagingBillView(ListView):
 			context.update({"packaging_processes": BatchPackagingProcess.objects.all()})
 		return context
 
-class PackagingProcessView(SingleObjectTemplateResponseMixin, ModelFormMixin, ProcessFormView, AjaxFormMixin):
+class PackagingProcessCreateView(AjaxFormMixin, CreateView):
 	
 	template_name = "last_temp/packaging_process_form.html"
 	model = BatchPackagingProcess
 	form_class = PackagingProcessForm
 
-	def get_object(self, queryset=None):
-		try:
-			return super(PackagingProcessView).get_object(queryset)
-		except AttributeError:
-			return None
-
-	def get(self, request, *args, **kwargs):
-		if self.kwargs.get("pk3"):
-			qs = BatchPackagingProcess.objects.get(pk=self.kwargs.get("pk3"))
-		self.object = self.get_object(qs)
-		return JsonResponse({'form': render_to_string('helpers/cleaning_update.html', context, request=request)})
-		return super(PackagingProcessView, self).get(request, *args, **kwargs)
-
-	def post(self, request, *args, **kwargs):
-		if self.kwargs.get("pk3"):
-			qs = BatchPackagingProcess.objects.get(pk=self.kwargs.get("pk3"))
-		self.object = self.get_object(qs)
-		return super(PackagingProcessView, self).post(request, *args, **kwargs)
-
 	def form_valid(self, form):
-		response = super(AjaxFormMixin, self).form_valid(form)
 		if self.request.is_ajax:
-			data = {
-				'message': "Successfully submitted form data."
-			}
-
+			
 			batch_obj = get_object_or_404(Batch, pk=self.kwargs.get('pk2'))
 			form.instance.batch = batch_obj
-			if self.kwargs.get("pk3"):
-				qs = BatchPackagingProcess.objects.get(pk=self.kwargs.get("pk3"))
-				form = PackagingProcessForm(self.request.POST, instance=qs)
+
 			try:
 				form.save()
 			except IntegrityError:
 				pass
+			
+			obj = BatchPackagingProcess.objects.last()
+			
+			instance = {
+				"process": obj.process,
+				"action_by": obj.action_by.name,
+				"checked_by": obj.checked_by.name
+			}
+
+			data = {
+				"instance": json.dumps(instance),
+				"object_data" : {"batch_pk": batch_obj.pk, "product_pk": self.kwargs.get('pk'), "process_pk": obj.pk},
+				'message': "Successfully submitted form data."
+			}
 
 			return JsonResponse(data)
+
 		else:
-			return response
+			return super(AjaxFormMixin, self).form_valid(form)
 
 	def get_success_url(self):
 		product_id = self.kwargs['pk']
 		batch_id = self.kwargs.get('pk2')
 		return reverse_lazy('batches:bill-of-packaging', kwargs={'pk': product_id, 'pk2': batch_id})
+
+	def get_context_data(self, **kwargs):
+		context = super().get_context_data(**kwargs)
+		context['batch'] = get_object_or_404(Batch, pk=self.kwargs.get('pk2'))
+		context['product'] = get_object_or_404(Product, pk=self.kwargs.get('pk'))
+		return context
 
 class PackagingBillUpdate(AjaxFormMixin, UpdateView):
 	template_name = "helpers/packaging_bill_update.html"
@@ -284,9 +280,15 @@ class PackagingBillUpdate(AjaxFormMixin, UpdateView):
 				pass
 			
 			bills = BillOfPackaging.objects.filter(batch=get_object_or_404(Batch, pk=self.kwargs.get("pk2")))
+			
+			try:
+				process = BatchPackagingProcess.objects.filter(batch=get_object_or_404(Batch, pk=self.kwargs.get("pk2")))
+			except:
+				pass
 
 			context_dict = self.get_context_data()
 			context_dict['packaging_bills'] = bills
+			context_dict['packaging_processes'] = process
 
 			data['bill_template'] = render_to_string('last_temp/packaging_bill.html', context_dict, request=self.request)
 
@@ -315,6 +317,74 @@ class PackagingBillDelete(DeleteView):
 		if instance is None:
 			raise Http404('Batch Info could not be found')
 		return instance
+
+	def get_success_url(self):
+		product_id = self.kwargs['pk']
+		batch_id = self.kwargs.get('pk2')
+		return reverse_lazy('batches:bill-of-packaging', kwargs={'pk': product_id, 'pk2': batch_id})
+
+class PackagingProcessUpdateView(AjaxFormMixin, UpdateView):
+	template_name= "helpers/package_process_update.html"
+	model = BatchPackagingProcess
+	form_class = PackagingProcessForm
+	
+	def get_object(self, *args, **kwargs):
+		request = self.request
+		pk = self.kwargs.get('pk3')
+		instance = BatchPackagingProcess.objects.get(pk=pk)
+		if instance is None:
+			raise Http404('Batch Info could not be found')
+		return instance
+
+	def get(self, request, *args, **kwargs):
+
+		instance = self.get_object()
+		form = PackagingProcessForm(instance=instance)
+		batch = get_object_or_404(Batch, pk=self.kwargs.get("pk2"))
+		product = get_object_or_404(Product, pk=self.kwargs.get("pk"))
+
+		context_dict = {
+			'batch': batch,
+			'product': product,
+			'form': form,
+			'process': instance
+		}
+
+		return JsonResponse({'form': render_to_string('helpers/package_process_update.html', context_dict, request=self.request)})
+
+	def form_valid(self, form):
+
+		response = super(AjaxFormMixin, self).form_valid(form)
+		data = dict()
+
+		if self.request.is_ajax:
+
+			data["form_is_valid"] = True
+
+			batch_obj = get_object_or_404(Batch, pk=self.kwargs.get('pk2'))
+			form.instance.batch = batch_obj
+
+			try:
+				instance = form.save()
+			except IntegrityError:
+				pass
+			
+			p = BatchPackagingProcess.objects.filter(batch=get_object_or_404(Batch, pk=self.kwargs.get("pk2")))
+			bills = BillOfPackaging.objects.filter(batch=get_object_or_404(Batch, pk=self.kwargs.get("pk2")))
+
+			context_dict = self.get_context_data()
+			context_dict['packaging_processes'] = p
+			context_dict['bills'] = bills
+
+			data['process_template'] = render_to_string('last_temp/packaging_bill.html', context_dict, request=self.request)
+
+		return JsonResponse(data)
+
+	def get_context_data(self, **kwargs):
+		context = super().get_context_data(**kwargs)
+		context["product"] = get_object_or_404(Product, pk=self.kwargs.get("pk"))
+		context["batch"] = get_object_or_404(Batch, pk=self.kwargs.get("pk2"))
+		return context
 
 	def get_success_url(self):
 		product_id = self.kwargs['pk']

@@ -56,11 +56,11 @@
 			  </thead>
 			  <tbody id="process-list">
 			  	{% for process in packaging_processes %}
-				    <tr data-form-url="{% url 'batches:pack-process-update' pk=product.pk pk2=batch.pk pk3=process.pk %}">
-				      <th scope="row" class="counter-proccess">{{ forloop.counter }}</th>
-				      <td>{{ packaging.process_description }}</td>
-				      <td>{{ packaging.action_by }}</td>
-				      <td>{{ packaging.process_checked_by }}</td> 
+				    <tr class="pack-processes" data-form-url="{% url 'batches:pack-process-update' pk=product.pk pk2=batch.pk pk3=process.pk %}">
+				      <th scope="row" class="counter-process">{{ forloop.counter }}</th>
+				      <td>{{ process.process }}</td>
+				      <td>{{ process.action_by }}</td>
+				      <td>{{ process.checked_by }}</td> 
 				    </tr>
 			    {% endfor %}
 			  </tbody>
@@ -77,7 +77,7 @@
                 </button>
                 <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
                   <li><a class="dropdown-item" id="create-bill-button" href="{% url 'batches:pack-bill-create' pk=product.pk pk2=batch.pk %}" data-bs-toggle="modal" data-bs-target="#packageBillModal">Packaging bill</a></li>
-                  <li><a class="dropdown-item" href="{% url 'batches:pack-process-create' pk=product.pk pk2=batch.pk %}" data-bs-toggle="modal" data-bs-target="#controlModal">Packaging process</a></li>
+                  <li><a class="dropdown-item" id="create-process-button" href="{% url 'batches:pack-process-create' pk=product.pk pk2=batch.pk %}" data-bs-toggle="modal" data-bs-target="#packageProcessModal">Packaging process</a></li>
                   <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#controlModal">Packaging material</a></li>
                 </ul>
             </div>

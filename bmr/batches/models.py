@@ -254,7 +254,7 @@ class BatchPackagingProcess(models.Model):
     updated = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return self.batch + "packaging process"
+        return self.batch.batch_number + "packaging process"
 
 class BatchPackagingAuth(models.Model):
     batch = models.ForeignKey(Batch, unique=True, on_delete=models.CASCADE)
