@@ -1,0 +1,16 @@
+{% load crispy_forms_tags %}
+<form method="post" action="{% url 'batches:pack-process-update' pk=product.pk pk2=batch.pk pk3=process.pk %}" class="update-process-js" id="process-update-form">
+    <div class="modal-header">
+      <div class="mt-2 container-fluid" id="bill-messages"></div>
+    </div>
+    <div class="modal-body">
+      <h2 class="mt-3 text-center">Update {{ process.process }}</h2>
+      <div class='mx-auto col-md-6'>
+      <form action="" method="POST">
+        {% csrf_token %}
+        {{ form|crispy }}
+        <button type="submit" class="mt-3 mb-5 btn btn-outline-info col-md-12 mx-auto">Save</button>
+      </form>
+    </div>
+    </div>
+</form
