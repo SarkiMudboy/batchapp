@@ -267,3 +267,13 @@ class PackagingProcessForm(ModelForm):
     class Meta:
         model = BatchPackagingProcess
         exclude = ['batch']
+
+class PackagingMaterialForm(ModelForm):
+    class Meta:
+        model = PackagingMaterial
+        exclude = ["batch"]
+
+class PackagingAuthForm(ModelForm):
+    class Meta:
+        model = BatchPackagingAuth
+        exclude = ["batch"]

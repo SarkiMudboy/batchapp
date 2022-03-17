@@ -1,4 +1,19 @@
 {   
+
+
+    $("#material-create-button").on("click", function(e){
+        console.log("this was clicked")
+        $.ajax({
+        method:"GET",
+        dataType: "html",
+        url: $('#material-create-button').attr("href"),
+        success: function (data) {
+            console.log("success")
+            $(".pack-material-form").html(data)
+        }
+    })
+    })
+
     $('#create-bill-button').on('click', function(event){
         event.preventDefault();
         $.ajax({
@@ -93,4 +108,19 @@
             }
         })
     })
+
+    $("#auth-form").on("submit", function (e) {
+        e.preventDefault();
+        var form = $(this)
+        $.ajax({
+            url: form.attr('target'),
+            type:"POST",
+            data: form.serialize(),
+            dataType: "json",
+            success: function(data){
+                $("#messages").append(`<div class='text-center alert alert-success'>${data.message}</div>`);
+            }
+        })
+    })
+
 }

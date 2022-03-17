@@ -264,7 +264,7 @@ class BatchPackagingAuth(models.Model):
     updated = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return self.batch + "packaging process authentication"
+        return self.batch.batch_number + "packaging process authentication"
 
 # product reconciliation
 

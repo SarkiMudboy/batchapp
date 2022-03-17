@@ -21,7 +21,7 @@
                     
                     var resp_data = response['object_data']
 
-                    let dataUrl = `/batches/${resp_data.product_pk}/${resp_data.batch_pk}/bill-of-packaging/${resp_data.bill_pk}/update`
+                    let dataUrl = `/batches/${resp_data.product_pk}/${resp_data.batch_pk}/packaging-bill/${resp_data.bill_pk}/update`
                     
                     counter = document.getElementsByClassName("counter-bill")
                     
@@ -77,7 +77,7 @@
                     
                     var resp_data = response['object_data']
 
-                    let dataUrl = `/batches/${resp_data.product_pk}/${resp_data.batch_pk}/bill-of-packaging/${resp_data.process_pk}/update`
+                    let dataUrl = `/batches/${resp_data.product_pk}/${resp_data.batch_pk}/packaging-bill/process/${resp_data.process_pk}/update`
                     
                     counter = document.getElementsByClassName("counter-process")
                     
@@ -108,4 +108,34 @@
             }
         })
     })
+
+ $('#material-form').submit(function(e) {
+        // preventing from page reload and default actions
+        e.preventDefault();
+        // serialize the data for sending the form data.
+        var serializedData = $(this).serialize();
+        // make ajax POST call
+        $.ajax({
+            type: 'POST',
+            url: $("#ajax-material-button").attr("data-ajax-target"),
+            data: serializedData,
+            success: function (response) {
+
+                    console.log(response)
+                    $("#messages").append(`<div class='text-center alert alert-success'>${response.message}</div>`);
+
+            },
+            error: function (response) {
+                // alert the error if any error occured
+                error_message = response.responseJSON.errors;
+                error_message.forEach(addError)
+                function addError (err) {
+                $("#messages").append(`<div class='text-center alert alert-danger'>${err}</div>`);
+                };
+                $("#pack-process-form").trigger('reset');
+            }
+        })
+    })
+
+
 }

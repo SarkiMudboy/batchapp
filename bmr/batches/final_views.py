@@ -19,8 +19,8 @@ from products.models import Product
 from datetime import date
 from products.models import RawMaterial, Product, Specification
 from bmr.mixins import AjaxFormMixin, serialize_model
-from .models import (QualityControlAnalysis, Batch, BillOfPackaging, BatchPackagingProcess)
-from .forms import (QCForm, PackagingCreateForm, PackagingProcessForm)
+from .models import (QualityControlAnalysis, Batch, BillOfPackaging, BatchPackagingProcess, PackagingMaterial, BatchPackagingAuth)
+from .forms import (QCForm, PackagingCreateForm, PackagingProcessForm, PackagingMaterialForm, PackagingAuthForm)
 
 import json
 
@@ -99,6 +99,7 @@ class QCUpdate(UpdateView):
 
 	def get_context_data(self, **kwargs):
 		context = super().get_context_data(**kwargs)
+		context['records'] = self.request.session['batch_records']
 		context['batch'] = get_object_or_404(Batch, pk=self.kwargs.get('pk2'))
 		context['product'] = get_object_or_404(Product, pk=self.kwargs.get('pk'))
 		return context
@@ -168,6 +169,7 @@ class PackagingBillCreateView(CreateView, AjaxFormMixin):
 
 	def get_context_data(self, **kwargs):
 		context = super().get_context_data(**kwargs)
+		context['records'] = self.request.session['batch_records']
 		context['batch'] = get_object_or_404(Batch, pk=self.kwargs.get('pk2'))
 		context['product'] = get_object_or_404(Product, pk=self.kwargs.get('pk'))
 		return context
@@ -178,12 +180,25 @@ class PackagingBillView(ListView):
 
 	def get_context_data(self, **kwargs):
 		context = super().get_context_data(**kwargs)
-		context['batch'] = get_object_or_404(Batch, pk=self.kwargs.get('pk2'))
+		b = get_object_or_404(Batch, pk=self.kwargs.get('pk2'))
+		context['records'] = self.request.session['batch_records']
+		context['batch'] = b
 		context['product'] = get_object_or_404(Product, pk=self.kwargs.get('pk'))
-		if BillOfPackaging.objects.all():
-			context.update({"packaging_bills": BillOfPackaging.objects.all()})
+		if BillOfPackaging.objects.filter(batch=b):
+			context.update({"packaging_bills": BillOfPackaging.objects.filter(batch=b)})
 		if BatchPackagingProcess.objects.all():
-			context.update({"packaging_processes": BatchPackagingProcess.objects.all()})
+			context.update({"packaging_processes": BatchPackagingProcess.objects.filter(batch=b)})
+		if PackagingMaterial.objects.filter(batch=b):
+			context.update({"packaging_materials": PackagingMaterial.objects.filter(batch=b)})
+
+		try:
+			if BatchPackagingAuth.objects.get(batch=b) is not None:
+				form = PackagingAuthForm(instance=BatchPackagingAuth.objects.get(batch=b))
+				context.update({'auth_form': form})
+		except BatchPackagingAuth.DoesNotExist:
+			form = PackagingAuthForm()
+			context.update({'auth_form': form})
+
 		return context
 
 class PackagingProcessCreateView(AjaxFormMixin, CreateView):
@@ -229,6 +244,7 @@ class PackagingProcessCreateView(AjaxFormMixin, CreateView):
 
 	def get_context_data(self, **kwargs):
 		context = super().get_context_data(**kwargs)
+		context['records'] = self.request.session['batch_records']
 		context['batch'] = get_object_or_404(Batch, pk=self.kwargs.get('pk2'))
 		context['product'] = get_object_or_404(Product, pk=self.kwargs.get('pk'))
 		return context
@@ -286,9 +302,15 @@ class PackagingBillUpdate(AjaxFormMixin, UpdateView):
 			except:
 				pass
 
+			try:
+				materials = PackagingMaterial.objects.filter(batch=get_object_or_404(Batch, pk=self.kwargs.get("pk2")))
+			except:
+				pass
+
 			context_dict = self.get_context_data()
 			context_dict['packaging_bills'] = bills
 			context_dict['packaging_processes'] = process
+			context_dict['packaging_materials'] = materials
 
 			data['bill_template'] = render_to_string('last_temp/packaging_bill.html', context_dict, request=self.request)
 
@@ -296,6 +318,7 @@ class PackagingBillUpdate(AjaxFormMixin, UpdateView):
 
 	def get_context_data(self, **kwargs):
 		context = super().get_context_data(**kwargs)
+		context['records'] = self.request.session['batch_records']
 		context["product"] = get_object_or_404(Product, pk=self.kwargs.get("pk"))
 		context["batch"] = get_object_or_404(Batch, pk=self.kwargs.get("pk2"))
 		return context
@@ -371,10 +394,16 @@ class PackagingProcessUpdateView(AjaxFormMixin, UpdateView):
 			
 			p = BatchPackagingProcess.objects.filter(batch=get_object_or_404(Batch, pk=self.kwargs.get("pk2")))
 			bills = BillOfPackaging.objects.filter(batch=get_object_or_404(Batch, pk=self.kwargs.get("pk2")))
+			try:
+				materials = PackagingMaterial.objects.filter(batch=get_object_or_404(Batch, pk=self.kwargs.get("pk2")))
+			except:
+				pass
 
 			context_dict = self.get_context_data()
 			context_dict['packaging_processes'] = p
-			context_dict['bills'] = bills
+			context_dict['packaging_bills'] = bills
+			context_dict['packaging_materials'] = materials
+			context_dict['records'] = self.request.session['batch_records']
 
 			data['process_template'] = render_to_string('last_temp/packaging_bill.html', context_dict, request=self.request)
 
@@ -390,3 +419,139 @@ class PackagingProcessUpdateView(AjaxFormMixin, UpdateView):
 		product_id = self.kwargs['pk']
 		batch_id = self.kwargs.get('pk2')
 		return reverse_lazy('batches:bill-of-packaging', kwargs={'pk': product_id, 'pk2': batch_id})
+
+
+class PackagingProcessDelete(DeleteView):
+	template_name = 'last_temp/batchpackagingprocess_confirm_delete.html'
+	model = BatchPackagingProcess
+	context_object_name = 'process'
+
+	def get_object(self, *args, **kwargs):
+		request = self.request
+		pk = self.kwargs.get('pk3')
+		instance = BatchPackagingProcess.objects.get(pk=pk)
+		if instance is None:
+			raise Http404('Batch Info could not be found')
+		return instance
+
+	def get_success_url(self):
+		product_id = self.kwargs['pk']
+		batch_id = self.kwargs.get('pk2')
+		return reverse_lazy('batches:bill-of-packaging', kwargs={'pk': product_id, 'pk2': batch_id})
+
+
+class PackagingMaterialView(AjaxFormMixin, CreateView):
+	template_name = "last_temp/material_create.html"
+	model = PackagingMaterial
+	form_class = PackagingMaterialForm
+
+	def form_valid(self, form):
+		if self.request.is_ajax:
+			
+			batch_obj = get_object_or_404(Batch, pk=self.kwargs.get('pk2'))
+			form.instance.batch = batch_obj
+
+			try:
+				form.save()
+			except IntegrityError:
+				pass
+			
+			obj = PackagingMaterial.objects.last()
+
+			data = {
+				'message': f"{obj.material} has been added!"
+			}
+
+			return JsonResponse(data)
+
+		else:
+			return super(AjaxFormMixin, self).form_valid(form)
+
+	def get_success_url(self):
+		product_id = self.kwargs['pk']
+		batch_id = self.kwargs.get('pk2')
+		return reverse_lazy('batches:bill-of-packaging', kwargs={'pk': product_id, 'pk2': batch_id})
+
+	def get_context_data(self, **kwargs):
+		context = super().get_context_data(**kwargs)
+		context['records'] = self.request.session['batch_records']
+		context['batch'] = get_object_or_404(Batch, pk=self.kwargs.get('pk2'))
+		context['product'] = get_object_or_404(Product, pk=self.kwargs.get('pk'))
+		return context
+
+
+class PackagingMaterialUpdate(AjaxFormMixin, UpdateView):
+	template_name = 'last_temp/pack_process_update.html'
+	model = BatchPackagingProcess
+	form_class = PackagingMaterialForm
+	context_object_name = "material"
+
+	def get_object(self, *args, **kwargs):
+		request = self.request
+		pk = self.kwargs.get('pk3')
+		instance = PackagingMaterial.objects.get(pk=pk)
+		if instance is None:
+			raise Http404('Batch Info could not be found')
+		return instance
+
+	def get_context_data(self, **kwargs):
+		context = super().get_context_data(**kwargs)
+		context['records'] = self.request.session['batch_records']
+		context['batch'] = get_object_or_404(Batch, pk=self.kwargs.get('pk2'))
+		context['product'] = get_object_or_404(Product, pk=self.kwargs.get('pk'))
+		return context
+
+	def get_success_url(self):
+		product_id = self.kwargs['pk']
+		batch_id = self.kwargs.get('pk2')
+		return reverse_lazy('batches:bill-of-packaging', kwargs={'pk': product_id, 'pk2': batch_id})
+
+
+class MaterialDelete(DeleteView):
+	template_name = "last_temp/material_delete.html"
+	model = BatchPackagingProcess
+	context_object_name = "material"
+
+	def get_object(self, *args, **kwargs):
+		request = self.request
+		pk = self.kwargs.get('pk3')
+		instance = PackagingMaterial.objects.get(pk=pk)
+		if instance is None:
+			raise Http404('Batch Info could not be found')
+		return instance
+
+	def get_success_url(self):
+		product_id = self.kwargs['pk']
+		batch_id = self.kwargs.get('pk2')
+		return reverse_lazy('batches:bill-of-packaging', kwargs={'pk': product_id, 'pk2': batch_id})
+
+class PackagingAuthView(AjaxFormMixin, FormView):
+	model = BatchPackagingAuth
+	form_class = PackagingAuthForm
+	message = ""
+	
+	def form_valid(self, form):
+
+		if self.request.is_ajax:
+			batch_obj = get_object_or_404(Batch, pk=self.kwargs.get('pk2'))
+			try:
+				if BatchPackagingAuth.objects.get(batch=batch_obj) is not None:
+					form = PackagingAuthForm(self.request.POST, instance=BatchPackagingAuth.objects.get(batch=batch_obj))
+			except BatchPackagingAuth.DoesNotExist:
+				form.instance.batch = batch_obj
+
+			try:
+				form.save()
+				message = "Auth has been added!"
+			except IntegrityError:
+				message = "Auth already exists!"
+
+			data = {
+				'message': message
+			}
+
+			return JsonResponse(data)
+
+		else:
+			return super(AjaxFormMixin, self).form_valid(form)
+
