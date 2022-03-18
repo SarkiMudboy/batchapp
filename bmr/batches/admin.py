@@ -1,25 +1,26 @@
 from django.contrib import admin
-from .models import (
-    Batch,
-    BatchInfoAuth,
-    QualityControlAnalysis,
-    ControlRecords,
-    IndividualWeight,
-    CleaningProcess,
-    RawMaterialCheckRecord,
-    RawMaterialPackagingBill,
-    RawMaterialBillAuth,
-    EquipmentCheck,
-    EquipmentClearance,
-    BatchManufacturingProcess,
-    PackagingMaterial,
-    BillOfPackaging,
-    BatchPackagingProcess,
-    BatchPackagingAuth,
-    ProductReconciliation,
-    ReleaseProfile,
-    Guide
-)
+from .models import *
+# from .models import (
+    # Batch,
+    # BatchInfoAuth,
+    # QualityControlAnalysis,
+    # ControlRecords,
+    # IndividualWeight,
+    # CleaningProcess,
+    # RawMaterialCheckRecord,
+    # RawMaterialPackagingBill,
+    # RawMaterialBillAuth,
+    # EquipmentCheck,
+    # EquipmentClearance,
+    # BatchManufacturingProcess,
+    # PackagingMaterial,
+    # BillOfPackaging,
+    # BatchPackagingProcess,
+    # BatchPackagingAuth,
+    
+    # ReleaseProfile,
+    # Guide
+# )
 
 # Register your models here.
 
@@ -39,6 +40,9 @@ admin.site.register(PackagingMaterial)
 admin.site.register(BillOfPackaging)
 admin.site.register(BatchPackagingProcess)
 admin.site.register(BatchPackagingAuth)
-admin.site.register(ProductReconciliation)
+admin.site.register(ProductYield)
+admin.site.register(ProductSamples)
+admin.site.register(ProductQuantitySale)
+admin.site.register(ProductReconPackMaterials)
 admin.site.register(ReleaseProfile)
 admin.site.register(Guide)

@@ -246,6 +246,7 @@ class BillOfPackaging(models.Model):
         return self.batch.batch_number + str(self.material) + "packaging bill"
 
 class BatchPackagingProcess(models.Model):
+
     batch = models.ForeignKey(Batch, on_delete=models.CASCADE)
     process = models.TextField(max_length=100)
     action_by = models.ForeignKey(Staff, related_name='%(class)s_action_by', blank=True, null=True, on_delete=models.CASCADE)
@@ -268,19 +269,65 @@ class BatchPackagingAuth(models.Model):
 
 # product reconciliation
 
-class ProductReconciliation(models.Model):
+class ProductYield(models.Model):
 
-    # batch = models.OneToOneField(Batch, on_delete=models.CASCADE)
+   batch = models.OneToOneField(Batch, on_delete=models.CASCADE)
+
+   # expected yield
+
+   expected_percent_yield = models.IntegerField(null=True, blank=True)
+   expected_yield_deviation = models.IntegerField(null=True, blank=True)
+   expected_yield_dev_limit = models.IntegerField(null=True, blank=True)
+   expected_yield_pack_sizes = models.CharField(validators=[validate_comma_separated_integer_list], max_length=200, blank=True, null=True)
+
+   # actual yield
+
+   actual_percent_yield = models.IntegerField(null=True, blank=True)
+   actual_yield_deviation = models.IntegerField(null=True, blank=True)
+   actual_yield_dev_limit = models.IntegerField(null=True, blank=True)
+   actual_yield_pack_sizes = models.CharField(validators=[validate_comma_separated_integer_list], max_length=200, blank=True, null=True)
+
+   created = models.DateTimeField(auto_now_add=True)
+   updated = models.DateTimeField(auto_now=True)
+
+   def __str__(self):
+        return self.batch.batch_number + " product yield"
+
+class ProductSamples(models.Model):
+
+    batch = models.ForeignKey(Batch, on_delete=models.CASCADE)
 
     # samples
     purpose = models.TextField(max_length=100)
     quantity = models.IntegerField(null=True, blank=True)
     collected_by = models.ForeignKey(Staff, related_name='%(class)s_approved_by', blank=True, null=True, on_delete=models.CASCADE)
     issued_by = models.ForeignKey(Staff, related_name='%(class)s_issued_by', blank=True, null=True, on_delete=models.CASCADE)
+    
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.batch.batch_number + " product sample"
+
+class ProductQuantitySale(models.Model):
+
+    batch = models.ForeignKey(Batch, on_delete=models.CASCADE)
+
     sales_quantity = models.CharField(max_length=100)
     remarks = models.TextField(max_length=50)
 
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.batch.batch_number + " quantity sale"
+
+class ProductReconPackMaterials(models.Model):
+
     # packaging materials
+
+    batch = models.ForeignKey(Batch, on_delete=models.CASCADE)
+
     item = models.ForeignKey(PackagingMaterial, on_delete=models.CASCADE)
     quantity_supplied = models.IntegerField(blank=True, null=True)
     quantity_damaged = models.IntegerField(blank=True, null=True)
@@ -289,22 +336,21 @@ class ProductReconciliation(models.Model):
     quantity_used = models.IntegerField(blank=True, null=True)
     percentage_breakage = models.FloatField(help_text='in percentage', blank=True, null=True)
     percentage_damages = models.FloatField(help_text='in percentage', blank=True, null=True)
+
     deviation = models.FloatField(help_text='+/- (%)', blank=True, null=True)
     comments = models.TextField(null=True, blank=True)
-
-    # yeild
-    pack_sizes = models.CharField(validators=[validate_comma_separated_integer_list], max_length=200, blank=True, null=True)
 
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return self.batch + "product reconciliation"
+        return self.batch.batch_number + " product reconciliation pack material"
 
 # release profile
 
 class ReleaseProfile(models.Model):
-    # batch = models.OneToOneField(Batch, on_delete=models.CASCADE)
+
+    batch = models.ForeignKey(Batch, blank=True, null=True, on_delete=models.CASCADE)
     parameter = models.CharField(max_length=100)
     test = models.ForeignKey(Test, blank=True, null=True, on_delete=models.CASCADE)
     analytical_result = models.BooleanField(default=False)
@@ -315,7 +361,7 @@ class ReleaseProfile(models.Model):
     updated = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return self.batch + "release profile"
+        return self.batch.batch_number + " release profile"
 
 class Guide(models.Model):
     batch = models.OneToOneField(Batch, on_delete=models.CASCADE, null=True, blank=True)

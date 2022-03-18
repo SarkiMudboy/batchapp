@@ -13,6 +13,8 @@ from .final_views import (
     PackagingProcessCreateView, PackagingBillUpdate, PackagingBillDelete, PackagingProcessUpdateView, 
     PackagingProcessDelete, PackagingMaterialView, PackagingMaterialUpdate, MaterialDelete, PackagingAuthView)
 
+from .release_views import *
+
 app_name = 'batches'
 
 urlpatterns = [
@@ -81,4 +83,26 @@ urlpatterns = [
     path('batches/<int:pk>/<int:pk2>/packaging-bill/material/<int:pk3>/delete', MaterialDelete.as_view(), name="material-delete"),
 
     path('batches/<int:pk>/<int:pk2>/packaging-bill/auth/', PackagingAuthView.as_view(), name="pack-auth"),
+
+    # release urls
+    path('batches/<int:pk>/<int:pk2>/product-recon/', ProductYieldView.as_view(), name='product-reconciliation'),
+    path('batches/<int:pk>/<int:pk2>/product-recon/create', ProductYieldCreate.as_view(), name='product-recon-create'),
+    path('batches/<int:pk>/<int:pk2>/product-recon/<int:pk3>/update', YieldUpdateView.as_view(), name='product-recon-update'),
+    path('batches/<int:pk>/<int:pk2>/product-recon/<int:pk3>/delete', YieldDeleteView.as_view(), name='product-recon-delete'),
+
+    path('batches/<int:pk>/<int:pk2>/product-recon/samples/create', ProductSampleCreate.as_view(), name='product-sample-create'),
+    path('batches/<int:pk>/<int:pk2>/product-recon/samples/<int:pk3>/update', SampleUpdateView.as_view(), name='product-sample-update'),
+    path('batches/<int:pk>/<int:pk2>/product-recon/samples/<int:pk3>/delete', SampleDeleteView.as_view(), name='product-sample-delete'),
+
+    path('batches/<int:pk>/<int:pk2>/product-recon/sample-quantity/', QuantitySampleView.as_view(), name="quantity-sample"),
+
+    path('batches/<int:pk>/<int:pk2>/product-recon/pack/create', ReconPackMaterialCreate.as_view(), name='recon-pack-create'),
+    path('batches/<int:pk>/<int:pk2>/product-recon/pack/<int:pk3>/update', ReconPackMaterialUpdate.as_view(), name='recon-pack-update'),
+    path('batches/<int:pk>/<int:pk2>/product-recon/pack/<int:pk3>/delete', ReconPackMaterialDelete.as_view(), name='recon-pack-delete'),
+
+    path('batches/<int:pk>/<int:pk2>/batch-release/', BatchReleaseView.as_view(), name='batch-release'),
+    path('batches/<int:pk>/<int:pk2>/batch-release/create', BatchReleaseCreate.as_view(), name='batch-release-create'),
+    path('batches/<int:pk>/<int:pk2>/batch-release/<int:pk3>/update', BatchReleaseUpdate.as_view(), name='batch-release-update'),
+    path('batches/<int:pk>/<int:pk2>/batch-release/<int:pk3>/delete', BatchReleaseDelete.as_view(), name='batch-release-delete'),
+
 ]

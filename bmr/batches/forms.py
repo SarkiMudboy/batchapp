@@ -277,3 +277,57 @@ class PackagingAuthForm(ModelForm):
     class Meta:
         model = BatchPackagingAuth
         exclude = ["batch"]
+
+class ProductYieldForm(ModelForm):
+    class Meta:
+        model = ProductYield
+        exclude = ["batch"]
+
+class ProductSampleForm(ModelForm):
+    class Meta:
+        model = ProductSamples
+        exclude = ["batch"]
+
+class PackagingAuthForm(ModelForm):
+    class Meta:
+        model = BatchPackagingAuth
+        exclude = ["batch"]
+
+class QuantitySaleForm(ModelForm):
+    class Meta:
+        model = ProductQuantitySale
+        exclude = ["batch"]
+
+class ReconPackMaterialForm(ModelForm):
+    class Meta:
+        model = ProductReconPackMaterials
+        exclude = ["batch"]
+
+    def save(self, commit=True):
+        instance = super(QCForm, self).save(commit=False)
+
+        instance._callSignal = False
+        instance._form = self
+
+        instance.save()
+
+        update_fields(instance, QualityControlAnalysis, ['deviation', 'comments'])
+
+        return instance
+
+class BatchReleaseForm(ModelForm):
+    class Meta:
+        model = BatchPackagingAuth
+        exclude = ["batch"]
+
+    def save(self, commit=True):
+        instance = super(QCForm, self).save(commit=False)
+
+        instance._callSignal = False
+        instance._form = self
+
+        instance.save()
+
+        update_fields(instance, QualityControlAnalysis, ['quality_assurance_manager'])
+
+        return instance
