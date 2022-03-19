@@ -126,7 +126,7 @@
 			  </thead>
 			  <tbody id="yield-list">
 			  	{% for pack in recon_pack_materials %}
-				    <tr onclick=location.href="{% url 'batches:recon-pack-update' pk=product.pk pk2=batch.pk pk3=sample.pk %}">
+				    <tr onclick=location.href="{% url 'batches:recon-pack-update' pk=product.pk pk2=batch.pk pk3=pack.pk %}">
 				      <th scope="row">{{ forloop.counter }}</th>
 				      <td>{{ pack.item }}</td>
 				      <td>{{ pack.quantity_supplied }}</td>
@@ -147,11 +147,16 @@
 		    Add
 		  </button>
 		  <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
-    	    <li><a class="dropdown-item" href="{% url 'batch:product-recon-create' pk=product.pk pk2=batch.pk pk3=material.pk %}">Product Yield</a></li>
-    	    <li><a class="dropdown-item" href="{% url 'batch:product-sample-create' pk=product.pk pk2=batch.pk pk3=material.pk %}">Product Samples</a></li>
-    	    <li><a class="dropdown-item" href="{% url 'batch:recon-pack-create' pk=product.pk pk2=batch.pk pk3=material.pk %}">Packaging Materials</a></li>
+    	    <li><a class="dropdown-item" href="{% url 'batch:product-recon-create' pk=product.pk pk2=batch.pk %}">Product Yield</a></li>
+    	    <li><a class="dropdown-item" href="{% url 'batch:product-sample-create' pk=product.pk pk2=batch.pk %}">Product Samples</a></li>
+    	    <li><a class="dropdown-item" href="{% url 'batch:recon-pack-create' pk=product.pk pk2=batch.pk %}">Packaging Materials</a></li>
 	  	</ul>
-
+		<a class="mt-2 mb-4 btn btn-outline-success col-md-6 mx-auto" data-bs-toggle="offcanvas" href="#offcanvasExample" role="button" aria-controls="offcanvasExample">
+		  Pages
+		</a>
   	</div>
 </div>
+	{% include "batch/sidebar.html" %}
 	<script type="text/javascript" src="{% static 'bmr/js/quantity_sale.js' %}"></script>
+
+{% endblock %}

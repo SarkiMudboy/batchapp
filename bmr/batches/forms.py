@@ -58,7 +58,7 @@ class BatchRecordsCheckForm(forms.Form):
     # records
     pages = ['Batch Info', 'Production Initiation', 'Guide', 'Equipment Check List', 'Equipment Line Clearance', 
     'Master Formula Sheet', 'Bill of Raw Materials', 'Process', 'Raw Material Check', 'Process control', 'QC Analysis Report', 'Bill of packaging',
-    'Product Reconiliation', 'Batch Release']
+    'Product Reconciliation', 'Batch Release']
 
     BATCH_RECORDS = [(r , r) for r in pages]
 
@@ -304,30 +304,32 @@ class ReconPackMaterialForm(ModelForm):
         exclude = ["batch"]
 
     def save(self, commit=True):
-        instance = super(QCForm, self).save(commit=False)
+        instance = super(ReconPackMaterialForm, self).save(commit=False)
 
         instance._callSignal = False
         instance._form = self
 
         instance.save()
 
-        update_fields(instance, QualityControlAnalysis, ['deviation', 'comments'])
+        update_fields(instance, ProductReconPackMaterials, ['deviation', 'comments'])
+
+        instance.save()
 
         return instance
 
 class BatchReleaseForm(ModelForm):
     class Meta:
-        model = BatchPackagingAuth
+        model = ReleaseProfile
         exclude = ["batch"]
 
     def save(self, commit=True):
-        instance = super(QCForm, self).save(commit=False)
+        instance = super(BatchReleaseForm, self).save(commit=False)
 
         instance._callSignal = False
         instance._form = self
 
-        instance.save()
+        update_fields(instance, ReleaseProfile, ['quality_assurance_manager'])
 
-        update_fields(instance, QualityControlAnalysis, ['quality_assurance_manager'])
+        instance.save()
 
         return instance

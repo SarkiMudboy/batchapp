@@ -56,11 +56,12 @@ class ProductYieldView(ListView):
 		except ProductSamples.DoesNotExist:
 			pass
 		try:
-			if ProductQuantitySale.objects.filter(batch=batch) is not None:
-				form = QuantitySaleForm(instance=ProductQuantitySale.objects.filter(batch=batch))
+			if ProductQuantitySale.objects.get(batch=batch) is not None:
+				form = QuantitySaleForm(instance=ProductQuantitySale.objects.get(batch=batch))
 				context.update({"quantity_sale_form": form})
 		except ProductQuantitySale.DoesNotExist:
-			pass
+			form = QuantitySaleForm()
+			context.update({"quantity_sale_form": form})
 
 		try:
 			if ProductReconPackMaterials.objects.filter(batch=batch) is not None:
@@ -106,6 +107,15 @@ class YieldUpdateView(UpdateView):
 		if instance is None:
 			raise Http404('Batch info could not be found')
 		return instance
+
+	def get_context_data(self, **kwargs):
+		product = Product.objects.get(pk=self.kwargs.get('pk'))
+		batch = Batch.objects.get(pk=self.kwargs.get('pk2'))
+		context = super().get_context_data(**kwargs)
+		context['records'] = self.request.session['batch_records']
+		context['product'] = product
+		context['batch'] = batch
+		return context
 
 	def get_success_url(self):
 		product_id = self.kwargs.get('pk')
@@ -166,6 +176,15 @@ class SampleUpdateView(UpdateView):
 		if instance is None:
 			raise Http404('Batch info could not be found')
 		return instance
+
+	def get_context_data(self, **kwargs):
+		product = Product.objects.get(pk=self.kwargs.get('pk'))
+		batch = Batch.objects.get(pk=self.kwargs.get('pk2'))
+		context = super().get_context_data(**kwargs)
+		context['records'] = self.request.session['batch_records']
+		context['product'] = product
+		context['batch'] = batch
+		return context
 
 	def get_success_url(self):
 		product_id = self.kwargs.get('pk')
@@ -258,6 +277,15 @@ class ReconPackMaterialUpdate(UpdateView):
 			raise Http404('Batch info could not be found')
 		return instance
 
+	def get_context_data(self, **kwargs):
+		product = Product.objects.get(pk=self.kwargs.get('pk'))
+		batch = Batch.objects.get(pk=self.kwargs.get('pk2'))
+		context = super().get_context_data(**kwargs)
+		context['records'] = self.request.session['batch_records']
+		context['product'] = product
+		context['batch'] = batch
+		return context
+
 	def get_success_url(self):
 		product_id = self.kwargs.get('pk')
 		batch_id = self.kwargs.get('pk2')
@@ -341,6 +369,15 @@ class BatchReleaseUpdate(UpdateView):
 		if instance is None:
 			raise Http404('Batch info could not be found')
 		return instance
+
+	def get_context_data(self, **kwargs):
+		product = Product.objects.get(pk=self.kwargs.get('pk'))
+		batch = Batch.objects.get(pk=self.kwargs.get('pk2'))
+		context = super().get_context_data(**kwargs)
+		context['records'] = self.request.session['batch_records']
+		context['product'] = product
+		context['batch'] = batch
+		return context
 
 	def get_success_url(self):
 		product_id = self.kwargs.get('pk')

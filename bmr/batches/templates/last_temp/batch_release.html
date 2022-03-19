@@ -28,7 +28,7 @@
               </thead>
             <tbody>
               {% for profile in profiles %}
-                  <tr onclick=location.href="{% url 'batches:eq-check-update' pk=product.pk pk2=batch.pk pk3=equipment.pk %}">                  
+                  <tr onclick=location.href="{% url 'batches:batch-release-update' pk=product.pk pk2=batch.pk pk3=profile.pk %}">                  
                     <th scope="row">-</th>
                     <td>{{ profile.parameter }}</td>
                     <td>{{ profile.test.name }}</td>
@@ -43,7 +43,14 @@
         {% else %}
           <h3 class="mt-3">Add a profile</h3>
         {% endif %}
-        <button class="mt-2 btn btn-secondary" onclick=location.href="{% url 'batches:batch-release' pk=product.pk pk2=batch.pk %}">Add</button>
-      </div>
+        <button class="mt-2 btn btn-secondary" onclick=location.href="{% url 'batches:batch-release-create' pk=product.pk pk2=batch.pk %}">Add</button>
+       </div>
     </div>
+      <a class="mt-2 mb-4 btn btn-outline-success col-md-3" data-bs-toggle="offcanvas" href="#offcanvasExample" role="button" aria-controls="offcanvasExample">
+        Pages
+      </a>
 </div>
+
+{% include "batch/sidebar.html" %}
+
+{% endblock %}
