@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load crispy_forms_tags %}
+{% load static %}
 
 {% block title %}
   batch info
@@ -15,6 +16,8 @@
          </div>
      {% endfor %}
   {% endif %}
+
+  <div id="raw-check-messages"></div>
 
   <div class="container">
     <div class="row">
@@ -64,7 +67,7 @@
           {{ form|crispy }}
           <button type="submit" class="mt-3 btn btn-primary">Save</button>
         </form>
-              
+          <button class="mt-3 mb-3 col-md-6 btn btn-outline-success" id="auto-raw-check" target="{% url 'batches:raw-check-autofill' pk=product.pk pk2=batch.pk %}">Autofill</button>
         <a class="mt-2 btn btn-outline-success" data-bs-toggle="offcanvas" href="#offcanvasExample" role="button" aria-controls="offcanvasExample">
           Pages
         </a>
@@ -72,6 +75,8 @@
       </div>
     </div>
   </div>
+
+  <script src="{% static 'bmr/js/autofill.js' %}" type="text/javascript"></script>
 
   {% include "batch/sidebar.html" %}
 

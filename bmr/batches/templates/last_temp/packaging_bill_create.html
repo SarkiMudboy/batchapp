@@ -3,6 +3,7 @@
 {% load static %}
 
 <div class="container">
+    <div id="pack-bill-messages"></div>
     <div class="row">
         <div class="col">
         <h3>Create a packaging bill</h3>
@@ -11,6 +12,7 @@
             {{ form|crispy }}
             <button type="submit" class="mt-5 btn btn-success" id="ajax-packaging-button" data-ajax-target="{% url 'batches:pack-bill-create' pk=product.pk pk2=batch.pk %}">Save</button>
         </form>
+        <button class="mt-3 mb-3 col-md-6 btn btn-outline-success" id="auto-pack-bill" target="{% url 'batches:pack-bill-autofill' pk=product.pk pk2=batch.pk %}">Autofill</button>
         </div>
     </div>
 </div>

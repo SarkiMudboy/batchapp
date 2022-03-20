@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load crispy_forms_tags %}
+{% load static %}
 
 {% block title %}
   batch info
@@ -15,6 +16,8 @@
          </div>
      {% endfor %}
   {% endif %}
+
+  <div id="autofill-messages"></div>
 
   <div class="container">
     <div class="row">
@@ -73,10 +76,13 @@
          <button onclick=location.href="{% url 'batches:batch-info-delete' pk=product.pk pk2=batch.pk pk3=batch_info_auth.pk %}" class="mt-3 mb-2 btn btn-outline-danger">Delete</button>
         {% endif %}
 
+        {% if not batch_info_auth %}
+        <button class="mt-3 mb-3 col-md-12 btn btn-outline-success" id="auto-batch-info" target="{% url 'batches:batch-info-autofill' pk=product.pk pk2=batch.pk %}">Autofill</button>
+        {% endif %}
       </div>
     </div>
   </div>
-  
+  <script src="{% static 'bmr/js/autofill.js' %}" type="text/javascript"></script>
   {% include "batch/sidebar.html" %}
 
 {% endblock content %}

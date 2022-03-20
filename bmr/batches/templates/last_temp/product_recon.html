@@ -99,12 +99,15 @@
 
         {% endif %}
 
+        <div id="qs-form">
          <h4 class="mt-3">Quantity Sale</h4>
 		  <form action="" method="POST" id="sale-form" target="{% url 'batches:quantity-sample' pk=product.pk pk2=batch.pk %}">
 		        {% csrf_token %}
 		        {{ quantity_sale_form|crispy }}
 		        <button type="submit" class="mt-3 btn btn-outline-info">Save</button>
 		  </form>
+		  <button class="mt-3 mb-3 col-md-12 btn btn-outline-success" id="auto-qs" target="{% url 'batches:qs-autofill' pk=product.pk pk2=batch.pk %}">Autofill</button>
+	    </div>
 
         {% if recon_pack_materials %}
 

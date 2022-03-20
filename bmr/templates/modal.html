@@ -1,4 +1,5 @@
 {% load crispy_forms_tags %}
+{% load static %}
 
 <!-- Modal -->
 <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -27,16 +28,17 @@
     <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title" id="exampleModalLabel">Add an control process</h5>
+            <h5 class="modal-title" id="exampleModalLabel">Add a control process</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
-          <div class="mt-2 container-fluid" id="messages"></div>
-          <div class="modal-body">
+          <div class="mt-2 container-fluid" id="batch-process-messages"></div>
+          <div class="modal-body" id="autofill-body">
               <form action="" method="POST" id="process-form">
                   {% csrf_token %}
                   {{ form|crispy }}
                   <button type="submit" class="mt-3 btn btn-outline-info" id="ajax-control-button" data-ajax-target="{% url 'batches:process-control' pk=product.pk pk2=batch.pk %}">Save</button>
               </form>
+              <button class="mt-3 mb-3 col-md-6 btn btn-outline-success" id="auto-process-control" target="{% url 'batches:process-control-autofill' pk=product.pk pk2=batch.pk %}">Autofill</button>
           </div>
         </div>
       </div>
@@ -51,7 +53,7 @@
         <div class="modal-header">
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
-        <div class="mt-2 container-fluid" id="messages"></div>
+        <div class="mt-2 container-fluid" id="bill-messages"></div>
         <div class="modal-body bill-form">
 
         </div>
@@ -67,7 +69,7 @@
         <div class="modal-header">
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
-        <div class="mt-2 container-fluid" id="messages"></div>
+        <div class="mt-2 container-fluid" id="package-process-messages"></div>
         <div class="modal-body package-process-form">
 
         </div>
@@ -89,3 +91,5 @@
       </div>
     </div>
 </div>
+
+<script src="{% static 'bmr/js/autofill.js' %}" type="text/javascript"></script>

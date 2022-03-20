@@ -49,6 +49,12 @@ class QCCreateView(CreateView):
 			pass
 		return super(QCCreateView, self).form_valid(form)
 
+	def get_context_data(self, **kwargs):
+		context = super().get_context_data(**kwargs)
+		context['batch'] = get_object_or_404(Batch, pk=self.kwargs.get('pk2'))
+		context['product'] = get_object_or_404(Product, pk=self.kwargs.get('pk'))
+		return context
+
 
 class QCView(ListView):
 	template_name = 'last_temp/quality_control.html'

@@ -12,4 +12,23 @@
             }
         })
     })
+
+    $("#auto-qs").on("click", function(e) {
+        console.log(e);
+        e.preventDefault();
+        var btn = $(this)
+        $.ajax({
+            url: btn.attr("target"),
+            type: "GET",
+            dataType: "json",
+            success: function(data) {
+                if (data.message) {
+                    $("#messages").append(`<div class='text-center alert alert-danger'>${data.message}</div>`);
+                } else {
+                    $("#qs-form").html(data.form)
+                }
+                
+            }
+        })
+    })
 }

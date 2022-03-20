@@ -25,6 +25,7 @@
         // serialize the data for sending the form data.
         var serializedData = $(this).serialize();
         // make ajax POST call
+        console.log(serializedData)
         $.ajax({
             type: 'POST',
             url: $("#ajax-control-button").attr("data-ajax-target"),
@@ -134,7 +135,7 @@
 
                     var instance = JSON.parse(response['instance']);
                     var fields = instance[0]["fields"];
-                    
+                    var ins = JSON.parse(response["batch_data"]["i"])
 
                     // $("#messages").append(`<div class='text-center alert alert-${resp_data.messages.type}'>${resp_data.messages.message}</div>`);
 
@@ -146,8 +147,8 @@
                     <tr class="rec-list" data-form-url="${dataUrl}">
                       <th scope="row" class="counter">${(parseInt(serial) + 1).toString()}</th>
                       <td>${fields['process_description']}</td>
-                      <td>${fields['action_by']}</td>
-                      <td>${fields["process_checked_by"]}</td>
+                      <td>${ins['action_by']}</td>
+                      <td>${ins["checked_by"]}</td>
                     </tr>
                         `);
 

@@ -14,6 +14,7 @@ from .final_views import (
     PackagingProcessDelete, PackagingMaterialView, PackagingMaterialUpdate, MaterialDelete, PackagingAuthView)
 
 from .release_views import *
+from .feature_views import *
 
 app_name = 'batches'
 
@@ -105,4 +106,25 @@ urlpatterns = [
     path('batches/<int:pk>/<int:pk2>/batch-release/<int:pk3>/update', BatchReleaseUpdate.as_view(), name='batch-release-update'),
     path('batches/<int:pk>/<int:pk2>/batch-release/<int:pk3>/delete', BatchReleaseDelete.as_view(), name='batch-release-delete'),
 
+    # autofill 
+    path('batches/<int:pk>/create/autofill', batch_autofill, name='batch-autofill'),
+    path('batches/<int:pk>/<int:pk2>/batch/autofill', batch_info_autofill, name='batch-info-autofill'),
+    path('batches/<int:pk>/<int:pk2>/guide/autofill', guide_autofill, name="guide-autofill"),
+    path('batches/<int:pk>/<int:pk2>/eq-check/autofill', equipment_check_autofill, name='equipment-check-autofill'),
+    path('batches/<int:pk>/<int:pk2>/eq-clear/autofill', equipment_clearance_autofill, name='equipment-clearance-autofill'),
+    path('batches/<int:pk>/<int:pk2>/raw-material-bill/autofill', raw_bill_autofill, name='raw-bill-autofill'),
+
+    path('batches/<int:pk>/<int:pk2>/process/autofill', batch_manufacturing_autofill, name='batch-process-autofill'),
+    path('batches/<int:pk>/<int:pk2>/raw-material-check/autofill', raw_check_autofill, name='raw-check-autofill'),
+    path('batches/<int:pk>/<int:pk2>/process-control/autofill', process_control_autofill, name='process-control-autofill'),
+    path('batches/<int:pk>/<int:pk2>/cleaning-process/autofill', cleaning_process_autofill, name='clean-autofill'),
+    path('batches/<int:pk>/<int:pk2>/qc-analysis-report/create/autofill', quality_control_autofill, name='qc-autofill'),
+    path('batches/<int:pk>/<int:pk2>/packaging-bill/create/autofill', packaging_bill_autofill, name="pack-bill-autofill"),
+    path('batches/<int:pk>/<int:pk2>/packaging-bill/process/create/autofill', packaging_process_autofill, name="pack-process-autofill"),
+    path('batches/<int:pk>/<int:pk2>/packaging-bill/material/create/autofill', packaging_material_autofill, name="pack-material-autofill"),
+    path('batches/<int:pk>/<int:pk2>/product-recon/create/autofill', product_yield_autofill, name="product-yield-autofill"),
+    path('batches/<int:pk>/<int:pk2>/product-recon/samples/create/autofill', product_sample_autofill, name="product-sample-autofill"),
+    path('batches/<int:pk>/<int:pk2>/product-recon/pack/create/autofill', recon_pack_autofill, name="recon-pack-autofill"),
+    path('batches/<int:pk>/<int:pk2>/product-recon/sample-quantity/autofill', quantity_sale_autofill, name="qs-autofill"),
+    path('batches/<int:pk>/<int:pk2>/batch-release/create/autofill', batch_release_autofill, name="batch-release-autofill"),
 ]

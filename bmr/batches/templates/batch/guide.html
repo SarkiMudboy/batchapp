@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load crispy_forms_tags %}
+{% load static %}
 
 {% block title %}
   batch info
@@ -15,6 +16,8 @@
          </div>
      {% endfor %}
   {% endif %}
+
+  <div id="guide-messages"></div>
 
   <div class="container">
     <div class="row">
@@ -35,10 +38,14 @@
         <a class="mt-2 btn btn-outline-success" data-bs-toggle="offcanvas" href="#offcanvasExample" role="button" aria-controls="offcanvasExample">
           Pages
         </a>
+
+        <button class="mt-3 mb-3 col-md-12 btn btn-outline-success" id="auto-guide" target="{% url 'batches:guide-autofill' pk=product.pk pk2=batch.pk %}">Autofill</button>
         
       </div>
     </div>
   </div>
+
+  <script src="{% static 'bmr/js/autofill.js' %}" type="text/javascript"></script>
 
   {% include "batch/sidebar.html" %}
 

@@ -351,7 +351,7 @@ class BatchReleaseCreate(CreateView):
 		product = Product.objects.get(pk=self.kwargs.get('pk'))
 		batch = Batch.objects.get(pk=self.kwargs.get('pk2'))
 		context = super().get_context_data(**kwargs)
-		context['records'] = self.request.session['batch_records']
+		# context['records'] = self.request.session['batch_records']
 		context['product'] = product
 		context['batch'] = batch
 		return context
@@ -374,7 +374,7 @@ class BatchReleaseUpdate(UpdateView):
 		product = Product.objects.get(pk=self.kwargs.get('pk'))
 		batch = Batch.objects.get(pk=self.kwargs.get('pk2'))
 		context = super().get_context_data(**kwargs)
-		context['records'] = self.request.session['batch_records']
+		# context['records'] = self.request.session['batch_records']
 		context['product'] = product
 		context['batch'] = batch
 		return context

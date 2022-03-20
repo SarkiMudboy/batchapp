@@ -137,5 +137,59 @@
         })
     })
 
+    $("#auto-pack-bill").on("click", function(e) {
+        e.preventDefault();
+        var btn = $(this)
+        $.ajax({
+            url: btn.attr("target"),
+            type: "GET",
+            dataType: "json",
+            success: function(data) {
+                if (data.message) {
+                    $("#pack-bill-messages").append(`<div class='text-center alert alert-danger'>${data.message}</div>`);
+                } else {
+                    $(".bill-form").html(data.form)
+                }
+                
+            }
+        })
+    })
 
+    $("#auto-pack-process").on("click", function(e) {
+        e.preventDefault(e);
+        var btn = $(this)
+        $.ajax({
+            url: btn.attr("target"),
+            type: "GET",
+            dataType: "json",
+            success: function(data) {
+                if (data.message) {
+                    $("#pack-messages").append(`<div class='text-center alert alert-danger'>${data.message}</div>`);
+                } else {
+                    $(".package-process-form").html(data.form)
+                }
+                
+            }
+        })
+    })
+
+
+    $("#auto-pack-material").on("click", function(e) {
+        console.log(e)
+        e.preventDefault(e);
+        var btn = $(this)
+        $.ajax({
+            url: btn.attr("target"),
+            type: "GET",
+            dataType: "json",
+            success: function(data) {
+                if (data.message) {
+                    $("#material-messages").append(`<div class='text-center alert alert-danger'>${data.message}</div>`);
+                } else {
+                    $(".pack-material-form").html(data.form)
+                }
+                
+            }
+        })
+    })
 }

@@ -19,6 +19,8 @@ from .models import (Batch, RawMaterialBillAuth, BatchManufacturingProcess, RawM
 from .forms import (RawMaterialBillForm, ProcessForm, RawMaterialCheckForm, InProcessControlForm,
 	CleaningProcessForm, IndividualWeightForm,)
 
+import json
+
 
 class MasterFormulaView(ListView):
 	template_name = 'batch/master_formula.html'
@@ -315,10 +317,10 @@ def process_control(request, pk, pk2, pk3=None):
 		control_record = get_object_or_404(ControlRecords, pk=pk3)
 		form = InProcessControlForm(instance=control_record)
 		context_dict = {
-		'batch': get_object_or_404(Batch, pk=pk2),
-		'product': get_object_or_404(Product, pk=pk),
-		'record': control_record,
-		'form': form
+			'batch': get_object_or_404(Batch, pk=pk2),
+			'product': get_object_or_404(Product, pk=pk),
+			'record': control_record,
+			'form': form
 		}
 
 		return JsonResponse({'form': render_to_string('helpers/control_update.html', context_dict, request=request)})
@@ -423,9 +425,15 @@ def cleaning(request, pk, pk2, pk3=None):
 
 			serialized_instance = serializers.serialize('json', [saved_instance,])
 
+			i = {
+				"process": saved_instance.process_description,
+				"action_by": saved_instance.action_by.name,
+				"checked_by": saved_instance.process_checked_by.name
+			}
+
 			data['instance'] = serialized_instance
 
-			data['batch_data'] = {'batch_pk': pk2, "product_pk": pk, "clean_pk": saved_instance.pk}
+			data['batch_data'] = {'batch_pk': pk2, "product_pk": pk, "clean_pk": saved_instance.pk, "i":json.dumps(i)}
 
 		return JsonResponse(data)
 
