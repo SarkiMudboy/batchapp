@@ -18,9 +18,10 @@
           </a>
           <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
             <li><a class="dropdown-item" href="{% url 'products:list' %}">Products</a></li>
+            <li><a class="dropdown-item" href="{% url 'raw_materials:raw-material-list' %}">Raw Materials</a></li>
             <li><a class="dropdown-item" href="{% url 'products:equipments' %}">Equipments</a></li>
             <li><a class="dropdown-item" href="{% url 'products:tests' %}">Tests</a></li>
-            <li><a class="dropdown-item" href="{% url 'products:raw-materials' %}">Raw materials</a></li>
+            <li><a class="dropdown-item" href="{% url 'products:raw-materials' %}">RM (Products)</a></li>
             <li><hr class="dropdown-divider"></li>
             <li><a class="dropdown-item" href="{% url 'batches:batch-products' %}">Batches</a></li>
           </ul>

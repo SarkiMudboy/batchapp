@@ -25,4 +25,4 @@ class RawMaterialBatch(models.Model):
     updated = models.DateTimeField(auto_now=True)
     
     def __str__(self):
-        return self.raw_material.name
+        return self.raw_material.name + self.batch
