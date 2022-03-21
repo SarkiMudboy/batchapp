@@ -1,6 +1,6 @@
 from django.urls import path
 from bmr.mixins import autocompleteModel
-from .views import ( product_list, raw_materials, equipment_list, postEquipment, create_raw_material, 
+from .views import ( homepage, product_list, raw_materials, equipment_list, postEquipment, create_raw_material, 
                     ProductListView, ProductDetailView, ProductUpdateView, 
                     ProductDeleteView, ProductCreateView, EquipmentListView, EquipmentCreateView, 
                     equipment_update, equipment_delete, postEquipment,
@@ -16,6 +16,7 @@ app_name = 'products'
 
 urlpatterns = [
     # products
+    path("", homepage, name="home"),
     path('list/', ProductListView.as_view(), name='list'),
     path('list/<int:pk>/', ProductDetailView.as_view(), name='product-detail'),
     path('list/<int:pk>/update', ProductUpdateView.as_view(), name='product-update'),

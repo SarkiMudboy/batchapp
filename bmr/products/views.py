@@ -19,6 +19,9 @@ import json
 
 # Create your views here.
 
+def homepage(request):
+    return render(request, "home/home_page.html")
+
 def product_list(request):
 
     products = Product.objects.all()

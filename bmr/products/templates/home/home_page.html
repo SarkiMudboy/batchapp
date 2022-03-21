@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+
+{% block title %}
+  Home
+{% endblock %}
+
+{% block content %}
+
+<div class="col mt-5">
+  <div class="row">
+  <div class="card col-md-6 mx-auto mt-6">
+  <div class="card-header">
+    BATCH APP
+  </div>
+  <div class="card-body">
+    <h5 class="card-title">BMR</h5>
+    <p class="card-text">Batch Manufacturing Records App For Pharma Products.</p>
+    <a href="{% url 'products:list' %}" class="btn btn-outline-secondary">Products</a>
+    <a href="{% url 'batches:batch-products' %}" class="btn btn-outline-success">Batches</a>
+  </div>
+</div>
+  </div>
+</div>
+
+{% endblock %}
